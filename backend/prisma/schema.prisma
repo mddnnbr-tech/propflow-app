@@ -1,0 +1,307 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MANAGER
+  TENANT
+}
+
+enum UnitStatus {
+  VACANT
+  OCCUPIED
+  MAINTENANCE
+}
+
+enum LeaseStatus {
+  ACTIVE
+  EXPIRING_SOON
+  EXPIRED
+  RENEWED
+  TERMINATED
+}
+
+enum PaymentMethod {
+  ACH
+  CHECK
+  CARD
+  MANUAL
+  VENMO
+  ZELLE
+  APPLE_PAY
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum MaintenanceStatus {
+  OPEN
+  DISPATCHED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  EMERGENCY
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(TENANT)
+  firstName String
+  lastName  String
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Manager payment/settings fields
+  venmoHandle         String?
+  zelleInfo           String?
+  vendorCostThreshold Float?   @default(500)
+
+  // Manager relations
+  properties     Property[]
+  vendors        Vendor[]
+  leaseTemplates LeaseTemplate[]
+  expenses       Expense[]
+
+  // Tenant relations
+  lease               Lease?               @relation("TenantLease")
+  payments            Payment[]
+  bankAccounts        BankAccount[]
+  maintenanceRequests MaintenanceRequest[]
+  notifications       Notification[]
+}
+
+model Property {
+  id        String   @id @default(cuid())
+  managerId String
+  manager   User     @relation(fields: [managerId], references: [id])
+  name      String
+  address   String
+  city      String
+  state     String
+  zip       String
+  units     Unit[]
+  expenses  Expense[]
+  // Acquisition & equity tracking
+  acquisitionCost       Float?
+  acquisitionDate       DateTime?
+  currentValue          Float?
+  currentValueUpdatedAt DateTime?
+  currentValueSource    String?   // "AI_RESEARCH" | "MANUAL"
+  currentValueNotes     String?   // AI source summary
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Unit {
+  id         String     @id @default(cuid())
+  propertyId String
+  property   Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  unitNumber String
+  bedrooms   Int        @default(1)
+  bathrooms  Float      @default(1)
+  sqft       Int?
+  rentAmount Float
+  status     UnitStatus @default(VACANT)
+  lease      Lease?
+  maintenanceRequests MaintenanceRequest[]
+  createdAt  DateTime   @default(now())
+
+  @@unique([propertyId, unitNumber])
+}
+
+model Lease {
+  id                   String      @id @default(cuid())
+  unitId               String      @unique
+  unit                 Unit        @relation(fields: [unitId], references: [id])
+  tenantId             String      @unique
+  tenant               User        @relation("TenantLease", fields: [tenantId], references: [id])
+  startDate            DateTime
+  endDate              DateTime
+  rentAmount           Float
+  depositAmount        Float       @default(0)
+  rentDueDay           Int         @default(1)
+  lateFee              Float?
+  lateFeeGraceDays     Int?        @default(5)
+  petPolicy            String?
+  utilitiesIncluded    String?
+  status               LeaseStatus @default(ACTIVE)
+  documentUrl          String?
+  templateId           String?
+  terms                Json?
+  autoRenew            Boolean     @default(false)
+  renewalSentAt        DateTime?
+  autopay              Boolean     @default(false)
+  autopayBankAccountId String?
+  payments             Payment[]
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+}
+
+model Payment {
+  id                 String        @id @default(cuid())
+  tenantId           String
+  tenant             User          @relation(fields: [tenantId], references: [id])
+  leaseId            String
+  lease              Lease         @relation(fields: [leaseId], references: [id])
+  amount             Float
+  method             PaymentMethod
+  status             PaymentStatus @default(PENDING)
+  dueDate            DateTime
+  paidAt             DateTime?
+  checkFrontUrl      String?
+  checkBackUrl       String?
+  checkData          Json?
+  plaidTransactionId String?
+  notes              String?
+  createdAt          DateTime      @default(now())
+}
+
+model BankAccount {
+  id                 String   @id @default(cuid())
+  tenantId           String
+  tenant             User     @relation(fields: [tenantId], references: [id])
+  // Plaid-linked (null for manual-entry accounts)
+  plaidAccessToken   String?
+  plaidItemId        String?
+  plaidAccountId     String?
+  plaidTokenExpiresAt DateTime?
+  // Manual ACH entry
+  routingNumber      String?
+  accountNumberLast4 String?
+  manualEntry        Boolean  @default(false)
+  // Common
+  accountName        String
+  accountMask        String   @default("")
+  institutionName    String
+  isDefault          Boolean  @default(false)
+  autopay            Boolean  @default(false)
+  createdAt          DateTime @default(now())
+}
+
+model MaintenanceRequest {
+  id           String            @id @default(cuid())
+  tenantId     String
+  tenant       User              @relation(fields: [tenantId], references: [id])
+  unitId       String
+  unit         Unit              @relation(fields: [unitId], references: [id])
+  description  String
+  photoUrls    String[]
+  aiCategory   String?
+  aiTrade      String?
+  aiSummary    String?
+  aiConfidence Float?
+  priority     Priority          @default(NORMAL)
+  status       MaintenanceStatus @default(OPEN)
+  vendorId     String?
+  vendor       Vendor?           @relation(fields: [vendorId], references: [id])
+  dispatchedAt DateTime?
+  completedAt  DateTime?
+  cost              Float?            // actual cost when resolved
+  managerNotes      String?
+  vendorPaid        Boolean           @default(false)
+  vendorPaidAt      DateTime?
+  vendorPaidAmount  Float?
+  vendorPaymentMethod String?
+  vendorPaidNotes   String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model Vendor {
+  id            String   @id @default(cuid())
+  managerId     String
+  manager       User     @relation(fields: [managerId], references: [id])
+  name          String
+  trade         String
+  phone         String
+  email         String?
+  address       String?
+  licenseNumber String?
+  insuranceExp  DateTime?
+  contractUrl   String?
+  notes         String?
+  isPreferred   Boolean  @default(true)
+  rating        Float?
+  autoDispatch  Boolean  @default(false)
+  // Payment settings
+  costThreshold Float?   // jobs above this $ require manager approval; null = use manager default
+  paymentInfo   String?  // e.g. "Zelle: 555-1234" or "Check to ABC Plumbing LLC"
+  stripeConnectId String? // Pro+: Stripe Connect for direct payouts
+  maintenanceRequests MaintenanceRequest[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model LeaseTemplate {
+  id          String   @id @default(cuid())
+  managerId   String?
+  manager     User?    @relation(fields: [managerId], references: [id])
+  name        String
+  description String?
+  content     String
+  isSystem    Boolean  @default(false)
+  category    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum ExpenseCategory {
+  MORTGAGE
+  INSURANCE
+  PROPERTY_TAX
+  REPAIR
+  MANAGEMENT_FEE
+  UTILITIES
+  HOA
+  LANDSCAPING
+  ADVERTISING
+  LEGAL_ACCOUNTING
+  CAPEX
+  OTHER
+}
+
+model Expense {
+  id          String          @id @default(cuid())
+  managerId   String
+  manager     User            @relation(fields: [managerId], references: [id])
+  propertyId  String?
+  property    Property?       @relation(fields: [propertyId], references: [id])
+  category    ExpenseCategory
+  amount      Float
+  date        DateTime
+  description String?
+  receiptUrl  String?
+  isRecurring Boolean         @default(false)
+  notes       String?
+  createdAt   DateTime        @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  linkTo    String?
+  createdAt DateTime @default(now())
+}

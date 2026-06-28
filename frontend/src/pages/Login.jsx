@@ -47,49 +47,46 @@ export default function Login() {
     <div className="min-h-screen flex">
 
       {/* ── Left panel (desktop only) ── */}
-      <div className="hidden lg:flex w-[52%] bg-hero-gradient flex-col justify-between p-12 relative overflow-hidden">
-        {/* Decorative circles */}
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-brand-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden lg:flex w-[52%] bg-slate-900 flex-col justify-between p-14 border-r border-slate-800">
 
         {/* Logo */}
-        <div className="flex items-center gap-3 relative z-10">
-          <div className="w-10 h-10 bg-brand-gradient rounded-xl flex items-center justify-center shadow-lg shadow-brand-900/40">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-brand-gradient rounded-xl flex items-center justify-center">
             <Building2 size={20} className="text-white" />
           </div>
           <span className="text-white font-black text-xl tracking-tight">PropFlow</span>
         </div>
 
         {/* Hero content */}
-        <div className="space-y-8 relative z-10">
+        <div className="space-y-10">
           <div>
-            <h2 className="text-5xl font-black text-white leading-tight">
+            <h2 className="text-4xl font-bold text-white leading-snug">
               Get your time back.<br />
-              <span className="text-gradient">Run less. Own more.</span>
+              Automate your property<br />management busy work.
             </h2>
-            <p className="text-slate-400 text-lg mt-4 leading-relaxed max-w-md">
-              Automate your property management busy work and make the easy transition into light-touch management — without needing to be tech-savvy.
+            <p className="text-slate-400 text-base mt-5 leading-relaxed max-w-md">
+              Make the easy transition into light-touch management.
             </p>
           </div>
 
           {/* Feature list */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             {FEATURES.map((f) => (
               <div key={f} className="flex items-center gap-3">
-                <Check size={14} className="text-emerald-400 flex-shrink-0" />
-                <span className="text-slate-300 text-sm">{f}</span>
+                <Check size={16} className="text-emerald-400 flex-shrink-0" />
+                <span className="text-slate-300 text-base">{f}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <p className="text-slate-600 text-xs relative z-10">
+        <p className="text-slate-600 text-xs">
           © {new Date().getFullYear()} PropFlow. All rights reserved.
         </p>
       </div>
 
       {/* ── Right panel (form) ── */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-6 bg-white overflow-y-auto">
         <div className="w-full max-w-sm animate-fade-up">
 
           {/* Mobile logo */}

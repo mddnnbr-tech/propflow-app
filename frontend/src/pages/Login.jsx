@@ -13,7 +13,6 @@ const SELLING_POINTS = [
   'Automated progress notifications — you choose how you stay informed',
   'DocuSign lease renewals with one click',
   'Manage all your properties in one place, on the go',
-  '90-day free trial — no credit card required to get started',
 ];
 
 export default function Login() {
@@ -69,6 +68,12 @@ export default function Login() {
             </h2>
           </div>
 
+          {/* 90-day trial callout */}
+          <div className="mb-10 border border-white/20 rounded-2xl px-6 py-5">
+            <p className="text-white text-2xl font-bold">90 days free.</p>
+            <p className="text-neutral-400 text-sm mt-1">No credit card required. Cancel any time.</p>
+          </div>
+
           <div className="space-y-3">
             {SELLING_POINTS.map((point) => (
               <p key={point} className="text-neutral-400 text-base">{point}</p>
@@ -92,12 +97,22 @@ export default function Login() {
 
           {/* Heading */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-black">
-              {mode === 'login' ? 'Welcome back' : 'Get started free'}
-            </h1>
-            <p className="text-neutral-700 mt-1 text-sm">
-              {mode === 'login' ? 'Sign in to your account' : 'Create your account in 2 minutes'}
-            </p>
+            {mode === 'login' ? (
+              <>
+                <h1 className="text-2xl font-bold text-black">Welcome back</h1>
+                <p className="text-neutral-700 mt-1 text-sm">Sign in to your account</p>
+              </>
+            ) : role === 'MANAGER' ? (
+              <>
+                <h1 className="text-2xl font-bold text-black">Start your 90-day free trial</h1>
+                <p className="text-neutral-700 mt-1 text-sm">No credit card required — cancel any time</p>
+              </>
+            ) : (
+              <>
+                <h1 className="text-2xl font-bold text-black">Always free for tenants</h1>
+                <p className="text-neutral-700 mt-1 text-sm">Create your account in 2 minutes</p>
+              </>
+            )}
           </div>
 
           {/* Mode toggle */}
@@ -198,17 +213,11 @@ export default function Login() {
                 </>
               ) : (
                 <>
-                  {mode === 'login' ? 'Sign In' : 'Start Free Trial'}
+                  {mode === 'login' ? 'Sign In' : role === 'MANAGER' ? 'Start Free Trial' : 'Create Free Account'}
                   <ArrowRight size={16} />
                 </>
               )}
             </button>
-
-            {mode === 'register' && (
-              <p className="text-center text-neutral-500 text-xs mt-3">
-                90-day free trial &mdash; no credit card required
-              </p>
-            )}
           </form>
 
           <p className="text-center text-neutral-700 text-xs mt-8">

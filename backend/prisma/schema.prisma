@@ -69,6 +69,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Trial / billing
+  trialEndsAt        DateTime?
+  stripeCustomerId   String?
+  subscriptionStatus String?   @default("trialing")
+
   // Manager payment/settings fields
   venmoHandle         String?
   zelleInfo           String?

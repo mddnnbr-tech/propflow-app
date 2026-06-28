@@ -73,9 +73,9 @@ export default function TenantHome() {
 
       {/* ── Quick actions ── */}
       <div className="grid grid-cols-3 gap-3">
-        <QuickAction icon={<CreditCard size={21} />} label="Pay Rent"    color="brand"   onClick={() => navigate('/tenant/pay')}         badge={isOverdue ? '!' : null} />
-        <QuickAction icon={<Wrench size={21} />}     label="Maintenance" color="amber"   onClick={() => navigate('/tenant/maintenance')} badge={openMaintenance > 0 ? openMaintenance : null} />
-        <QuickAction icon={<FileText size={21} />}   label="My Lease"    color="emerald" onClick={() => navigate('/tenant/lease')} />
+        <QuickAction icon={<CreditCard size={20} />} label="Pay Rent"    onClick={() => navigate('/tenant/pay')}         badge={isOverdue ? '!' : null} />
+        <QuickAction icon={<Wrench size={20} />}     label="Maintenance" onClick={() => navigate('/tenant/maintenance')} badge={openMaintenance > 0 ? openMaintenance : null} />
+        <QuickAction icon={<FileText size={20} />}   label="My Lease"    onClick={() => navigate('/tenant/lease')} />
       </div>
 
       {/* ── Lease expiry warning ── */}
@@ -120,13 +120,13 @@ export default function TenantHome() {
       {notifications?.filter((n) => !n.read).length > 0 && (
         <div className="card p-4">
           <p className="font-bold text-sm text-slate-900 mb-3 flex items-center gap-2">
-            <Bell size={14} className="text-brand-500" /> Updates
+            <Bell size={14} className="text-slate-400" /> Updates
           </p>
-          <div className="space-y-2">
+          <div className="space-y-1">
             {notifications.filter((n) => !n.read).slice(0, 3).map((n) => (
-              <div key={n.id} className="p-3 bg-brand-50 border border-brand-100 rounded-xl">
-                <p className="font-semibold text-brand-900 text-sm">{n.title}</p>
-                <p className="text-brand-700 text-xs mt-0.5">{n.message}</p>
+              <div key={n.id} className="py-2.5 px-1 border-b border-slate-50 last:border-0">
+                <p className="font-semibold text-slate-800 text-sm">{n.title}</p>
+                <p className="text-slate-500 text-xs mt-0.5">{n.message}</p>
               </div>
             ))}
           </div>
@@ -136,25 +136,18 @@ export default function TenantHome() {
   );
 }
 
-const COLOR_MAP = {
-  brand:   { bg: 'bg-brand-50',   icon: 'text-brand-600',   border: 'hover:border-brand-200' },
-  amber:   { bg: 'bg-amber-50',   icon: 'text-amber-600',   border: 'hover:border-amber-200' },
-  emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'hover:border-emerald-200' },
-};
-
-function QuickAction({ icon, label, onClick, badge, color = 'brand' }) {
-  const c = COLOR_MAP[color];
+function QuickAction({ icon, label, onClick, badge }) {
   return (
     <button
       onClick={onClick}
-      className={`relative flex flex-col items-center justify-center gap-2 py-4 px-2 bg-white border border-slate-100 rounded-2xl ${c.border} shadow-card hover:shadow-card-hover transition-all duration-150`}
+      className="relative flex flex-col items-center justify-center gap-2 py-4 px-2 bg-white border border-slate-100 rounded-2xl hover:border-slate-200 hover:shadow-card-hover transition-all duration-150"
     >
       {badge && (
         <span className="absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center">
           {badge}
         </span>
       )}
-      <div className={`w-10 h-10 ${c.bg} rounded-xl flex items-center justify-center ${c.icon}`}>{icon}</div>
+      <span className="text-slate-500">{icon}</span>
       <span className="text-xs font-semibold text-slate-600">{label}</span>
     </button>
   );

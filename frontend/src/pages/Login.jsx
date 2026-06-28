@@ -66,12 +66,9 @@ export default function Login() {
             <h2 className="text-3xl font-semibold text-white leading-snug">
               Easy transition into light-touch management.
             </h2>
-          </div>
-
-          {/* 90-day trial callout */}
-          <div className="mb-10 border border-white/20 rounded-2xl px-6 py-5">
-            <p className="text-white text-2xl font-bold">90 days free.</p>
-            <p className="text-neutral-400 text-sm mt-1">No credit card required. Cancel any time.</p>
+            <h2 className="text-3xl font-semibold text-white leading-snug">
+              90 Day Free Trial.
+            </h2>
           </div>
 
           <div className="space-y-3">
@@ -105,7 +102,7 @@ export default function Login() {
             ) : role === 'MANAGER' ? (
               <>
                 <h1 className="text-2xl font-bold text-black">Start your 90-day free trial</h1>
-                <p className="text-neutral-700 mt-1 text-sm">No credit card required — cancel any time</p>
+                <p className="text-neutral-700 mt-1 text-sm">Billing starts after your trial ends — cancel any time</p>
               </>
             ) : (
               <>

@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { Building2, Eye, EyeOff, Check, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import SupportChat from '../components/SupportChat';
 
-const FEATURES = [
+const SELLING_POINTS = [
   'Automated rent collection & late fee enforcement',
   'Maintenance dispatch — photo to vendor in minutes',
   'DocuSign lease renewals with one click',
   'Manage all your properties in one place, on the go',
-  'Real-time tenant & vendor communication',
+  'Your tenants pay rent in seconds from their phone',
+  'Tenants submit maintenance with a photo — you get notified instantly',
 ];
 
 export default function Login() {
@@ -44,44 +45,35 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-white">
 
       {/* ── Left panel (desktop only) ── */}
-      <div className="hidden lg:flex w-[52%] bg-slate-900 flex-col justify-between p-14 border-r border-slate-800">
+      <div className="hidden lg:flex w-[52%] flex-col justify-between p-14 bg-slate-50 border-r border-slate-100">
 
-        {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-brand-gradient rounded-xl flex items-center justify-center">
-            <Building2 size={20} className="text-white" />
-          </div>
-          <span className="text-white font-black text-xl tracking-tight">PropFlow</span>
-        </div>
+        {/* Wordmark only — no icon */}
+        <span className="text-slate-900 font-black text-2xl tracking-tight">PropFlow</span>
 
         {/* Hero content */}
-        <div className="space-y-10">
-          <div>
-            <h2 className="text-4xl font-bold text-white leading-snug">
-              Get your time back.<br />
-              Automate your property<br />management busy work.
-            </h2>
-            <p className="text-slate-400 text-base mt-5 leading-relaxed max-w-md">
-              Make the easy transition into light-touch management.
-            </p>
-          </div>
+        <div>
+          <h2 className="text-3xl font-semibold text-slate-900 leading-snug mb-2">
+            Get your time back.
+          </h2>
+          <h2 className="text-3xl font-semibold text-slate-900 leading-snug mb-2">
+            Automate your property management busy work.
+          </h2>
+          <h2 className="text-3xl font-semibold text-slate-500 leading-snug mb-10">
+            Easy transition into light-touch management.
+          </h2>
 
-          {/* Feature list */}
-          <div className="space-y-4">
-            {FEATURES.map((f) => (
-              <div key={f} className="flex items-center gap-3">
-                <Check size={16} className="text-emerald-400 flex-shrink-0" />
-                <span className="text-slate-300 text-base">{f}</span>
-              </div>
+          <div className="space-y-3">
+            {SELLING_POINTS.map((point) => (
+              <p key={point} className="text-slate-600 text-base">— {point}</p>
             ))}
           </div>
         </div>
 
-        <p className="text-slate-600 text-xs">
-          © {new Date().getFullYear()} PropFlow. All rights reserved.
+        <p className="text-slate-400 text-sm">
+          © {new Date().getFullYear()} PropFlow
         </p>
       </div>
 
@@ -90,10 +82,7 @@ export default function Login() {
         <div className="w-full max-w-sm animate-fade-up">
 
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-10">
-            <div className="w-10 h-10 bg-brand-gradient rounded-xl flex items-center justify-center">
-              <Building2 size={20} className="text-white" />
-            </div>
+          <div className="lg:hidden flex items-center justify-center mb-10">
             <span className="text-2xl font-black text-slate-900">PropFlow</span>
           </div>
 

@@ -7,11 +7,12 @@ import SupportChat from '../components/SupportChat';
 
 const SELLING_POINTS = [
   'Automated rent collection & late fee enforcement',
-  'Maintenance dispatch — photo to vendor in minutes',
+  'Tenants pay rent in seconds from their phone',
+  'Maintenance dispatched automatically to vendors',
+  'Tenants submit maintenance requests with a photo in seconds',
+  'Automated progress notifications — you choose how you stay informed',
   'DocuSign lease renewals with one click',
   'Manage all your properties in one place, on the go',
-  'Your tenants pay rent in seconds from their phone',
-  'Tenants submit maintenance with a photo — you get notified instantly',
 ];
 
 export default function Login() {
@@ -48,31 +49,33 @@ export default function Login() {
     <div className="min-h-screen flex bg-white">
 
       {/* ── Left panel (desktop only) ── */}
-      <div className="hidden lg:flex w-[52%] flex-col justify-between p-14 bg-slate-50 border-r border-slate-100">
+      <div className="hidden lg:flex w-[52%] flex-col justify-between p-14 bg-black border-r border-neutral-900">
 
-        {/* Wordmark only — no icon */}
-        <span className="text-slate-900 font-black text-2xl tracking-tight">PropFlow</span>
+        {/* Wordmark */}
+        <span className="text-white font-black text-2xl tracking-tight">PropFlow</span>
 
         {/* Hero content */}
         <div>
-          <h2 className="text-3xl font-semibold text-slate-900 leading-snug mb-2">
-            Get your time back.
-          </h2>
-          <h2 className="text-3xl font-semibold text-slate-900 leading-snug mb-2">
-            Automate your property management busy work.
-          </h2>
-          <h2 className="text-3xl font-semibold text-slate-500 leading-snug mb-10">
-            Easy transition into light-touch management.
-          </h2>
+          <div className="space-y-5 mb-12">
+            <h2 className="text-3xl font-semibold text-white leading-snug">
+              Get your time back.
+            </h2>
+            <h2 className="text-3xl font-semibold text-white leading-snug">
+              Automate your property management busy work.
+            </h2>
+            <h2 className="text-3xl font-semibold text-white leading-snug">
+              Easy transition into light-touch management.
+            </h2>
+          </div>
 
           <div className="space-y-3">
             {SELLING_POINTS.map((point) => (
-              <p key={point} className="text-slate-600 text-base">— {point}</p>
+              <p key={point} className="text-neutral-400 text-base">{point}</p>
             ))}
           </div>
         </div>
 
-        <p className="text-slate-400 text-sm">
+        <p className="text-neutral-600 text-sm">
           © {new Date().getFullYear()} PropFlow
         </p>
       </div>

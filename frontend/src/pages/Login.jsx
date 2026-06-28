@@ -139,25 +139,25 @@ export default function Login() {
             {mode === 'register' && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-500 mb-1.5">First Name</label>
-                  <input name="firstName" value={form.firstName} onChange={update} required className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-600 outline-none focus:ring-2 focus:ring-black/30" placeholder="Michael" />
+                  <label className="block text-xs font-semibold text-black mb-1.5">First Name</label>
+                  <input name="firstName" value={form.firstName} onChange={update} required className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-500 outline-none focus:ring-2 focus:ring-white/20" placeholder="Michael" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-500 mb-1.5">Last Name</label>
-                  <input name="lastName" value={form.lastName} onChange={update} required className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-600 outline-none focus:ring-2 focus:ring-black/30" placeholder="Baker" />
+                  <label className="block text-xs font-semibold text-black mb-1.5">Last Name</label>
+                  <input name="lastName" value={form.lastName} onChange={update} required className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-500 outline-none focus:ring-2 focus:ring-white/20" placeholder="Baker" />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-neutral-500 mb-1.5">Email address</label>
-              <input type="email" name="email" value={form.email} onChange={update} required className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-600 outline-none focus:ring-2 focus:ring-black/30" placeholder="you@example.com" />
+              <label className="block text-xs font-semibold text-black mb-1.5">Email address</label>
+              <input type="email" name="email" value={form.email} onChange={update} required className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-500 outline-none focus:ring-2 focus:ring-white/20" placeholder="you@example.com" />
             </div>
 
             {mode === 'register' && (
               <div>
-                <label className="block text-xs font-semibold text-neutral-500 mb-1.5">Phone <span className="font-normal text-neutral-400">(optional)</span></label>
-                <input type="tel" name="phone" value={form.phone} onChange={update} className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-600 outline-none focus:ring-2 focus:ring-black/30" placeholder="+1 (555) 000-0000" />
+                <label className="block text-xs font-semibold text-black mb-1.5">Phone <span className="font-normal text-neutral-500">(optional)</span></label>
+                <input type="tel" name="phone" value={form.phone} onChange={update} className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-500 outline-none focus:ring-2 focus:ring-white/20" placeholder="+1 (555) 000-0000" />
               </div>
             )}
 
@@ -165,7 +165,7 @@ export default function Login() {
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-semibold text-neutral-500">Password</label>
                 {mode === 'login' && (
-                  <button type="button" className="text-xs text-neutral-400 hover:text-black transition-colors">Forgot password?</button>
+                  <button type="button" className="text-xs text-black hover:text-neutral-600 transition-colors">Forgot password?</button>
                 )}
               </div>
               <div className="relative">
@@ -176,13 +176,13 @@ export default function Login() {
                   onChange={update}
                   required
                   minLength={8}
-                  className="w-full bg-black text-white rounded-xl px-4 py-3 pr-10 text-sm placeholder-neutral-600 outline-none focus:ring-2 focus:ring-black/30"
+                  className="w-full bg-black text-white rounded-xl px-4 py-3 pr-10 text-sm placeholder-neutral-500 outline-none focus:ring-2 focus:ring-white/20"
                   placeholder={mode === 'register' ? 'Min. 8 characters' : '••••••••'}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-neutral-300 transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>

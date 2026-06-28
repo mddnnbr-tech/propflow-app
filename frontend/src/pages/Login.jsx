@@ -81,17 +81,17 @@ export default function Login() {
       </div>
 
       {/* ── Right panel (form) ── */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-black overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-6 bg-white overflow-y-auto">
         <div className="w-full max-w-sm animate-fade-up">
 
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center justify-center mb-10">
-            <span className="text-2xl font-black text-white">PropFlow</span>
+            <span className="text-2xl font-black text-black">PropFlow</span>
           </div>
 
           {/* Heading */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-black">
               {mode === 'login' ? 'Welcome back' : 'Get started free'}
             </h1>
             <p className="text-neutral-500 mt-1 text-sm">
@@ -100,7 +100,7 @@ export default function Login() {
           </div>
 
           {/* Mode toggle */}
-          <div className="flex bg-neutral-900 rounded-xl p-1 mb-6 border border-neutral-800">
+          <div className="flex bg-black rounded-xl p-1 mb-6">
             {[['login', 'Sign In'], ['register', 'Create Account']].map(([m, label]) => (
               <button
                 key={m}
@@ -124,8 +124,8 @@ export default function Login() {
                   onClick={() => setRole(r)}
                   className={`py-3 px-3 rounded-xl border text-sm font-semibold transition-all duration-150 ${
                     role === r
-                      ? 'border-white bg-white text-black'
-                      : 'border-neutral-700 text-neutral-400 hover:border-neutral-500 bg-transparent'
+                      ? 'border-black bg-black text-white'
+                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-400 bg-white'
                   }`}
                 >
                   {label}
@@ -139,33 +139,33 @@ export default function Login() {
             {mode === 'register' && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5">First Name</label>
-                  <input name="firstName" value={form.firstName} onChange={update} required className="w-full bg-white text-black rounded-xl px-4 py-3 text-sm placeholder-neutral-400 outline-none focus:ring-2 focus:ring-white/30" placeholder="Michael" />
+                  <label className="block text-xs font-semibold text-neutral-500 mb-1.5">First Name</label>
+                  <input name="firstName" value={form.firstName} onChange={update} required className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-600 outline-none focus:ring-2 focus:ring-black/30" placeholder="Michael" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-400 mb-1.5">Last Name</label>
-                  <input name="lastName" value={form.lastName} onChange={update} required className="w-full bg-white text-black rounded-xl px-4 py-3 text-sm placeholder-neutral-400 outline-none focus:ring-2 focus:ring-white/30" placeholder="Baker" />
+                  <label className="block text-xs font-semibold text-neutral-500 mb-1.5">Last Name</label>
+                  <input name="lastName" value={form.lastName} onChange={update} required className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-600 outline-none focus:ring-2 focus:ring-black/30" placeholder="Baker" />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-neutral-400 mb-1.5">Email address</label>
-              <input type="email" name="email" value={form.email} onChange={update} required className="w-full bg-white text-black rounded-xl px-4 py-3 text-sm placeholder-neutral-400 outline-none focus:ring-2 focus:ring-white/30" placeholder="you@example.com" />
+              <label className="block text-xs font-semibold text-neutral-500 mb-1.5">Email address</label>
+              <input type="email" name="email" value={form.email} onChange={update} required className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-600 outline-none focus:ring-2 focus:ring-black/30" placeholder="you@example.com" />
             </div>
 
             {mode === 'register' && (
               <div>
-                <label className="block text-xs font-semibold text-neutral-400 mb-1.5">Phone <span className="font-normal text-neutral-600">(optional)</span></label>
-                <input type="tel" name="phone" value={form.phone} onChange={update} className="w-full bg-white text-black rounded-xl px-4 py-3 text-sm placeholder-neutral-400 outline-none focus:ring-2 focus:ring-white/30" placeholder="+1 (555) 000-0000" />
+                <label className="block text-xs font-semibold text-neutral-500 mb-1.5">Phone <span className="font-normal text-neutral-400">(optional)</span></label>
+                <input type="tel" name="phone" value={form.phone} onChange={update} className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm placeholder-neutral-600 outline-none focus:ring-2 focus:ring-black/30" placeholder="+1 (555) 000-0000" />
               </div>
             )}
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold text-neutral-400">Password</label>
+                <label className="block text-xs font-semibold text-neutral-500">Password</label>
                 {mode === 'login' && (
-                  <button type="button" className="text-xs text-neutral-400 hover:text-white transition-colors">Forgot password?</button>
+                  <button type="button" className="text-xs text-neutral-400 hover:text-black transition-colors">Forgot password?</button>
                 )}
               </div>
               <div className="relative">
@@ -176,23 +176,23 @@ export default function Login() {
                   onChange={update}
                   required
                   minLength={8}
-                  className="w-full bg-white text-black rounded-xl px-4 py-3 pr-10 text-sm placeholder-neutral-400 outline-none focus:ring-2 focus:ring-white/30"
+                  className="w-full bg-black text-white rounded-xl px-4 py-3 pr-10 text-sm placeholder-neutral-600 outline-none focus:ring-2 focus:ring-black/30"
                   placeholder={mode === 'register' ? 'Min. 8 characters' : '••••••••'}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="w-full bg-white text-black font-bold py-3 rounded-xl text-base mt-2 hover:bg-neutral-100 transition-colors flex items-center justify-center gap-2">
+            <button type="submit" disabled={loading} className="w-full bg-black text-white font-bold py-3 rounded-xl text-base mt-2 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2">
               {loading ? (
                 <>
-                  <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                  <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                   Please wait…
                 </>
               ) : (
@@ -204,9 +204,9 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="text-center text-neutral-600 text-xs mt-8">
+          <p className="text-center text-neutral-400 text-xs mt-8">
             Need help?{' '}
-            <a href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'support@propflow.app'}`} className="text-neutral-400 hover:text-white transition-colors">
+            <a href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'support@propflow.app'}`} className="text-neutral-600 hover:text-black transition-colors">
               support@propflow.app
             </a>
           </p>

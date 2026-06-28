@@ -7,15 +7,10 @@ import SupportChat from '../components/SupportChat';
 
 const FEATURES = [
   'Automated rent collection & late fee enforcement',
-  'AI maintenance dispatch — photo to vendor in minutes',
+  'Maintenance dispatch — photo to vendor in minutes',
   'DocuSign lease renewals with one click',
+  'Manage all your properties in one place, on the go',
   'Real-time tenant & vendor communication',
-];
-
-const STATS = [
-  { value: '12 hrs', label: 'Saved per month' },
-  { value: '98%', label: 'On-time rent rate' },
-  { value: '4.8 ★', label: 'Manager satisfaction' },
 ];
 
 export default function Login() {
@@ -69,31 +64,19 @@ export default function Login() {
         <div className="space-y-8 relative z-10">
           <div>
             <h2 className="text-5xl font-black text-white leading-tight">
-              Property management<br />
-              <span className="text-gradient">that runs itself.</span>
+              Get your time back.<br />
+              <span className="text-gradient">Run less. Own more.</span>
             </h2>
             <p className="text-slate-400 text-lg mt-4 leading-relaxed max-w-md">
-              From rent collection to vendor dispatch, PropFlow automates the routine so you can focus on growing your portfolio.
+              Automate your property management busy work and make the easy transition into light-touch management — without needing to be tech-savvy.
             </p>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
-            {STATS.map(({ value, label }) => (
-              <div key={label} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4">
-                <p className="text-2xl font-black text-white">{value}</p>
-                <p className="text-slate-400 text-xs mt-1">{label}</p>
-              </div>
-            ))}
           </div>
 
           {/* Feature list */}
           <div className="space-y-3">
             {FEATURES.map((f) => (
               <div key={f} className="flex items-center gap-3">
-                <div className="w-5 h-5 bg-emerald-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Check size={11} className="text-emerald-400" />
-                </div>
+                <Check size={14} className="text-emerald-400 flex-shrink-0" />
                 <span className="text-slate-300 text-sm">{f}</span>
               </div>
             ))}
@@ -101,7 +84,7 @@ export default function Login() {
         </div>
 
         <p className="text-slate-600 text-xs relative z-10">
-          PropFlow · BluSterling &amp; Associates LLC · Madisonville, LA
+          © {new Date().getFullYear()} PropFlow. All rights reserved.
         </p>
       </div>
 
@@ -234,8 +217,8 @@ export default function Login() {
 
           <p className="text-center text-slate-400 text-xs mt-8">
             Need help?{' '}
-            <a href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'support@blusterling.com'}`} className="text-brand-600 hover:text-brand-700 font-medium">
-              {import.meta.env.VITE_SUPPORT_EMAIL || 'support@blusterling.com'}
+            <a href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'support@propflow.app'}`} className="text-brand-600 hover:text-brand-700 font-medium">
+              {import.meta.env.VITE_SUPPORT_EMAIL || 'support@propflow.app'}
             </a>
           </p>
         </div>

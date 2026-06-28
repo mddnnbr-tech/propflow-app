@@ -46,8 +46,8 @@ export default function SupportChat({ userRole }) {
       setMessages((prev) => [...prev, reply]);
       if (!open || minimized) setUnread((n) => n + 1);
     } catch {
-      const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL || 'support@blusterling.com';
-      setMessages((prev) => [...prev, { role: 'assistant', content: `Sorry, I'm having trouble connecting. Email ${supportEmail} for immediate help.` }]);
+      const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL || 'support@propflow.app';
+      setMessages((prev) => [...prev, { role: 'assistant', content: `Sorry, I'm having trouble right now. Email us at ${supportEmail} and we'll get back to you shortly.` }]);
     } finally {
       setLoading(false);
     }
@@ -120,8 +120,8 @@ export default function SupportChat({ userRole }) {
 
               {/* Email fallback */}
               <div className="px-3 pb-1">
-                <a href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'support@blusterling.com'}`} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-blue-600 transition-colors">
-                  <Mail size={11} /> {import.meta.env.VITE_SUPPORT_EMAIL || 'support@blusterling.com'}
+                <a href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'support@propflow.app'}`} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-blue-600 transition-colors">
+                  <Mail size={11} /> {import.meta.env.VITE_SUPPORT_EMAIL || 'support@propflow.app'}
                 </a>
               </div>
 

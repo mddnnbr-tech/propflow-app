@@ -94,7 +94,7 @@ export default function Login() {
             <h1 className="text-2xl font-bold text-black">
               {mode === 'login' ? 'Welcome back' : 'Get started free'}
             </h1>
-            <p className="text-neutral-500 mt-1 text-sm">
+            <p className="text-neutral-700 mt-1 text-sm">
               {mode === 'login' ? 'Sign in to your account' : 'Create your account in 2 minutes'}
             </p>
           </div>
@@ -204,9 +204,9 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="text-center text-neutral-400 text-xs mt-8">
+          <p className="text-center text-neutral-700 text-xs mt-8">
             Need help?{' '}
-            <a href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'support@propflow.app'}`} className="text-neutral-600 hover:text-black transition-colors">
+            <a href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'support@propflow.app'}`} className="text-black font-medium hover:text-neutral-600 transition-colors">
               support@propflow.app
             </a>
           </p>

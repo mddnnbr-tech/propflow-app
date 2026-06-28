@@ -5,6 +5,9 @@ const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const { authenticate } = require('../middleware/auth');
 const notificationService = require('../services/notifications.service');
+const stripeService = require('../services/stripe.service');
+
+const TRIAL_DAYS = 90;
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -37,14 +40,27 @@ router.post(
     if (existing) return res.status(409).json({ error: 'Email already in use' });
 
     const hashed = await bcrypt.hash(password, 12);
+    const trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+
+    // Create Stripe customer so we have a record for billing later
+    let stripeCustomerId = null;
+    if (stripeService.isConfigured()) {
+      try {
+        const customer = await stripeService.createCustomer({ email, name: `${firstName} ${lastName}` });
+        stripeCustomerId = customer.id;
+      } catch (err) {
+        console.error('Stripe customer creation failed (non-fatal):', err.message);
+      }
+    }
+
     const user = await prisma.user.create({
-      data: { email, password: hashed, firstName, lastName, role, phone },
+      data: { email, password: hashed, firstName, lastName, role, phone, trialEndsAt, stripeCustomerId, subscriptionStatus: 'trialing' },
     });
 
     const token = signToken(user);
     res.status(201).json({
       token,
-      user: { id: user.id, email: user.email, role: user.role, firstName: user.firstName, lastName: user.lastName },
+      user: { id: user.id, email: user.email, role: user.role, firstName: user.firstName, lastName: user.lastName, trialEndsAt: user.trialEndsAt },
     });
   }
 );

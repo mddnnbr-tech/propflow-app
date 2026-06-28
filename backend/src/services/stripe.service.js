@@ -8,6 +8,12 @@ function requireStripe() {
   return stripe;
 }
 
+// Create a Stripe customer (called at registration)
+async function createCustomer({ email, name }) {
+  const s = requireStripe();
+  return s.customers.create({ email, name });
+}
+
 // Create a PaymentIntent for Apple Pay / card payments
 async function createPaymentIntent({ amount, currency = 'usd', metadata = {} }) {
   const s = requireStripe();
@@ -57,6 +63,7 @@ async function payVendorViaConnect(vendorStripeAccountId, amount, description) {
 
 module.exports = {
   isConfigured: () => !!stripe,
+  createCustomer,
   createPaymentIntent,
   retrievePaymentIntent,
   createVendorConnectLink,

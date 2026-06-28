@@ -13,6 +13,7 @@ const SELLING_POINTS = [
   'Automated progress notifications — you choose how you stay informed',
   'DocuSign lease renewals with one click',
   'Manage all your properties in one place, on the go',
+  '90-day free trial — no credit card required to get started',
 ];
 
 export default function Login() {
@@ -197,11 +198,17 @@ export default function Login() {
                 </>
               ) : (
                 <>
-                  {mode === 'login' ? 'Sign In' : 'Create Account'}
+                  {mode === 'login' ? 'Sign In' : 'Start Free Trial'}
                   <ArrowRight size={16} />
                 </>
               )}
             </button>
+
+            {mode === 'register' && (
+              <p className="text-center text-neutral-500 text-xs mt-3">
+                90-day free trial &mdash; no credit card required
+              </p>
+            )}
           </form>
 
           <p className="text-center text-neutral-700 text-xs mt-8">

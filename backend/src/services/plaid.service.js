@@ -15,7 +15,7 @@ const plaidClient = new PlaidApi(config);
 async function createLinkToken(userId, email) {
   const response = await plaidClient.linkTokenCreate({
     user: { client_user_id: userId, email_address: email },
-    client_name: 'PropAI',
+    client_name: 'PropFlow',
     products: [Products.Auth, Products.Transactions],
     country_codes: [CountryCode.Us],
     language: 'en',

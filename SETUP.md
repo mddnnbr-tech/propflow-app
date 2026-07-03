@@ -1,4 +1,4 @@
-# PropAI — Setup Guide
+# PropFlow — Setup Guide
 
 ## Tech Stack
 - **Frontend**: React 18, Vite, Tailwind CSS, React Router v6

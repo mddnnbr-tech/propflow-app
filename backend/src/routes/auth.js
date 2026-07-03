@@ -129,8 +129,8 @@ router.post('/invite-tenant', authenticate, async (req, res) => {
     });
     await notificationService.sendEmail({
       to: email,
-      subject: 'Welcome to PropAI — Your Tenant Portal',
-      text: `Hi ${firstName},\n\nYour landlord has invited you to PropAI.\n\nLogin: ${email}\nTemporary password: ${tempPassword}\n\nPlease change your password after first login.`,
+      subject: 'Welcome to PropFlow — Your Tenant Portal',
+      text: `Hi ${firstName},\n\nYour landlord has invited you to PropFlow.\n\nLogin: ${email}\nTemporary password: ${tempPassword}\n\nPlease change your password after first login.`,
     });
   }
 

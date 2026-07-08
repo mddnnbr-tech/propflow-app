@@ -295,7 +295,7 @@ export default function ManagerFinances() {
                           <tr key={e.id} className="hover:bg-slate-50">
                             <td className="px-5 py-3">
                               <div className="flex items-center gap-2">
-                                <span className="text-base">{cat?.emoji}</span>
+                                <span className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: cat?.color || "#94a3b8" }} />
                                 <span className="font-medium text-slate-900">{cat?.label || e.category}</span>
                               </div>
                             </td>
@@ -409,7 +409,7 @@ function AddExpenseModal({ properties, onClose, onSaved }) {
                   onClick={() => { setForm((f) => ({ ...f, category: cat.key })); setStep('details'); }}
                   className="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-gray-100 hover:border-blue-300 hover:bg-blue-50 transition-colors"
                 >
-                  <span className="text-2xl">{cat.emoji}</span>
+                  <span className="w-3 h-3 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: cat.color }} />
                   <span className="text-xs font-medium text-gray-700 text-center leading-tight">{cat.label}</span>
                 </button>
               ))}
@@ -420,7 +420,7 @@ function AddExpenseModal({ properties, onClose, onSaved }) {
             {/* Selected category chip */}
             <div className="flex items-center gap-2">
               <button onClick={() => setStep('category')} className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border hover:bg-gray-50">
-                <span className="text-base">{CAT_MAP[form.category]?.emoji}</span>
+                <span className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: CAT_MAP[form.category]?.color || "#94a3b8" }} />
                 <span>{CAT_MAP[form.category]?.label}</span>
                 <span className="text-gray-400 text-xs">change</span>
               </button>

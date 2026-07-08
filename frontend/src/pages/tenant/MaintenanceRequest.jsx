@@ -191,7 +191,7 @@ function SubmitRequestModal({ onClose, onSave }) {
               <p className="text-sm text-purple-700 mt-1">{aiPreview.summary}</p>
               {aiPreview.priority !== 'NORMAL' && (
                 <span className={`inline-block mt-2 text-xs px-3 py-1 rounded-full font-bold ${aiPreview.priority === 'EMERGENCY' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>
-                  {aiPreview.priority === 'EMERGENCY' ? '⚡ Emergency' : '⚠️ High Priority'}
+                  {aiPreview.priority === 'EMERGENCY' ? 'Emergency' : 'High Priority'}
                 </span>
               )}
             </div>
@@ -254,7 +254,7 @@ function SubmitRequestModal({ onClose, onSave }) {
                   onClick={() => setPriority(val)}
                   className={`py-2 rounded-xl border-2 text-sm font-semibold transition-colors ${priority === val ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'} ${color}`}
                 >
-                  {val === 'EMERGENCY' && '⚡ '}{label}
+                  {label}
                 </button>
               ))}
             </div>

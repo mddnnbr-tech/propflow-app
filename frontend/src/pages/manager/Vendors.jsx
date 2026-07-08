@@ -159,7 +159,7 @@ export default function ManagerVendors() {
                     </div>
                   )}
                   {v.paymentInfo && <p className="text-xs text-gray-500 mt-1">💳 {v.paymentInfo}</p>}
-                  {v.costThreshold && <p className="text-xs text-amber-600 mt-0.5">⚠️ Alert at ${v.costThreshold}</p>}
+                  {v.costThreshold && <p className="text-xs text-amber-600 mt-0.5">Alert at ${v.costThreshold}</p>}
                   <p className="text-xs text-gray-400 mt-1">{v._count?.maintenanceRequests ?? 0} jobs completed</p>
                 </div>
                 <div className="flex gap-1">

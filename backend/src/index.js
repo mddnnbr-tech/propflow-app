@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('express-async-errors'); // routes async errors to the error middleware instead of crashing the process
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -34,7 +35,18 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
+  if (res.headersSent) return next(err);
+  // Prisma validation/known errors → 400 instead of 500
+  const isClientError = err.name === 'PrismaClientValidationError' || err.code?.startsWith?.('P2');
+  res.status(err.status || (isClientError ? 400 : 500)).json({ error: isClientError ? 'Invalid request data' : (err.message || 'Internal server error') });
+});
+
+// Last-resort guards — log instead of killing the server
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled rejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
 });
 
 const PORT = process.env.PORT || 5000;

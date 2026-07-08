@@ -6,3 +6,4 @@ dist/
 uploads/
 *.key
 .claude/
+package-lock.json

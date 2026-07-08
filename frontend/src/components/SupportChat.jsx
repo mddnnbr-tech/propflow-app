@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Minimize2, Bot, Mail } from 'lucide-react';
+import { MessageCircle, X, Send, Minimize2, Headphones, Mail } from 'lucide-react';
 import api from '../api/client';
 
 const WELCOME = {
@@ -65,11 +65,11 @@ export default function SupportChat({ userRole }) {
           {/* Header */}
           <div className="flex items-center gap-2 px-4 py-3 bg-blue-600 rounded-t-2xl flex-shrink-0 cursor-pointer" onClick={() => setMinimized((m) => !m)}>
             <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
-              <Bot size={14} className="text-white" />
+              <Headphones size={14} className="text-white" />
             </div>
             <div className="flex-1">
               <p className="text-white font-semibold text-sm leading-none">PropFlow Support</p>
-              <p className="text-blue-200 text-xs mt-0.5">AI Assistant · Always on</p>
+              <p className="text-blue-200 text-xs mt-0.5">Typically replies in seconds</p>
             </div>
             <div className="flex items-center gap-1">
               <button onClick={(e) => { e.stopPropagation(); setMinimized((m) => !m); }} className="p-1 text-white/70 hover:text-white">
@@ -89,7 +89,7 @@ export default function SupportChat({ userRole }) {
                   <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {m.role === 'assistant' && (
                       <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
-                        <Bot size={12} className="text-blue-600" />
+                        <Headphones size={12} className="text-blue-600" />
                       </div>
                     )}
                     <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
@@ -104,7 +104,7 @@ export default function SupportChat({ userRole }) {
                 {loading && (
                   <div className="flex justify-start">
                     <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
-                      <Bot size={12} className="text-blue-600" />
+                      <Headphones size={12} className="text-blue-600" />
                     </div>
                     <div className="bg-gray-100 px-4 py-3 rounded-2xl rounded-bl-sm">
                       <div className="flex gap-1">

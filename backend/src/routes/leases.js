@@ -165,6 +165,9 @@ router.post('/:id/send-renewal', authenticate, requireRole('MANAGER'), async (re
     });
   } catch (err) {
     console.error('DocuSign error:', err.message);
+    return res.status(502).json({
+      error: 'The renewal could not be sent — e-signature service is unavailable or not configured. Nothing was sent to the tenant.',
+    });
   }
 
   await prisma.lease.update({

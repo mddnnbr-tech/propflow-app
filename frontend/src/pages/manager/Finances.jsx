@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import {
   DollarSign, CheckCircle, Clock, XCircle, Plus, X, TrendingUp,
-  TrendingDown, Home, Sparkles, ChevronDown, ChevronUp, Pencil, Trash2,
+  TrendingDown, Home, Search, ChevronDown, ChevronUp, Pencil, Trash2,
 } from 'lucide-react';
 
 function fmt(n) { return `$${(n || 0).toLocaleString()}`; }
@@ -551,8 +551,8 @@ function PropertyEquityCard({ prop, onResearch, researching, onUpdate }) {
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Current Value ($) — override AI</label>
-                <input type="number" className={inp} placeholder="Leave blank to use AI research" value={form.currentValue} onChange={(e) => setForm((f) => ({ ...f, currentValue: e.target.value }))} />
+                <label className="block text-xs text-gray-500 mb-1">Current Value ($)</label>
+                <input type="number" className={inp} placeholder="Leave blank to use researched estimate" value={form.currentValue} onChange={(e) => setForm((f) => ({ ...f, currentValue: e.target.value }))} />
               </div>
               <div className="flex gap-2">
                 <button onClick={() => setEditing(false)} className="flex-1 py-1.5 border rounded-lg text-xs font-medium">Cancel</button>
@@ -572,7 +572,7 @@ function PropertyEquityCard({ prop, onResearch, researching, onUpdate }) {
                 <div>
                   <p className="text-gray-400">
                     Current Value
-                    {prop.currentValueSource && <span className="ml-1 px-1 py-0.5 rounded bg-gray-200 text-gray-500 text-[10px]">{prop.currentValueSource === 'AI_RESEARCH' ? 'AI' : 'Manual'}</span>}
+                    {prop.currentValueSource && <span className="ml-1 px-1 py-0.5 rounded bg-gray-200 text-gray-500 text-[10px]">{prop.currentValueSource === 'AI_RESEARCH' ? 'Researched' : 'Manual'}</span>}
                   </p>
                   <p className="font-semibold text-gray-900">{prop.currentValue ? fmt(prop.currentValue) : '—'}</p>
                   {prop.currentValueUpdatedAt && <p className="text-gray-400">as of {format(new Date(prop.currentValueUpdatedAt), 'MMM d')}</p>}
@@ -593,12 +593,12 @@ function PropertyEquityCard({ prop, onResearch, researching, onUpdate }) {
                 <button
                   onClick={onResearch}
                   disabled={researching}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-purple-50 border border-purple-200 text-purple-700 rounded-lg text-xs font-semibold hover:bg-purple-100 disabled:opacity-60 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-gray-50 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:bg-gray-100 disabled:opacity-60 transition-colors"
                 >
                   {researching ? (
-                    <><div className="w-3 h-3 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" /> Researching…</>
+                    <><div className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" /> Researching…</>
                   ) : (
-                    <><Sparkles size={11} /> AI Research Value</>
+                    <><Search size={11} /> Research Market Value</>
                   )}
                 </button>
                 <button onClick={() => setEditing(true)} className="px-3 py-1.5 border rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100">

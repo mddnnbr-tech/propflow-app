@@ -55,7 +55,7 @@ export default function ManagerLeases() {
         // Show confirmation dialog instead of auto-applying
         setAiDraft({ leaseId, fields: res.data.aiExtracted, accepted: {} });
       }
-      toast.success('Lease analyzed by AI — review extracted fields below');
+      toast.success('Lease analyzed — review extracted fields below');
       load();
     } finally {
       setUploadingFor(null);
@@ -73,7 +73,7 @@ export default function ManagerLeases() {
     }
     try {
       await api.put(`/leases/${leaseId}`, payload);
-      toast.success('AI-extracted fields applied!');
+      toast.success('Extracted fields applied!');
       setAiDraft(null);
       load();
     } catch {
@@ -271,7 +271,7 @@ export default function ManagerLeases() {
                 ) : (
                   <DropZone
                     accept=".pdf,.jpg,.jpeg,.png"
-                    label="Drop lease document here to analyze with AI"
+                    label="Drop lease document here to analyze"
                     uploading={uploadingFor === selected.id}
                     uploaded={false}
                     onFile={(file) => uploadDocument(selected.id, file)}
@@ -300,7 +300,7 @@ export default function ManagerLeases() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between p-5 border-b">
               <div>
-                <h2 className="font-bold text-gray-900">AI Extracted These Fields</h2>
+                <h2 className="font-bold text-gray-900">We Found These Lease Terms</h2>
                 <p className="text-xs text-gray-500 mt-0.5">Uncheck any fields you don't want to apply</p>
               </div>
               <button onClick={() => setAiDraft(null)} className="p-1 text-gray-400 hover:text-gray-600"><X size={20} /></button>

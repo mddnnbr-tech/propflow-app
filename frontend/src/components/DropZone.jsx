@@ -40,7 +40,7 @@ export default function DropZone({ onFile, accept = '.pdf,.doc,.docx', label = '
         <div className="flex flex-col items-center gap-2">
           <div className="w-10 h-10 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
           <p className="text-sm font-semibold text-blue-600">Analyzing document...</p>
-          <p className="text-xs text-blue-500">AI is reading lease terms</p>
+          <p className="text-xs text-blue-500">Reading lease terms</p>
         </div>
       ) : uploaded ? (
         <div className="flex flex-col items-center gap-2">

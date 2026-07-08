@@ -252,7 +252,7 @@ export default function ManagerOnboarding({ onComplete }) {
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Quick reminders</p>
                 <div className="flex items-start gap-2 text-sm text-gray-700"><DollarSign size={14} className="text-blue-500 flex-shrink-0 mt-0.5" /> Add your Venmo / Zelle handle in Vendors → Payment Settings so tenants can pay you</div>
                 <div className="flex items-start gap-2 text-sm text-gray-700"><Wrench size={14} className="text-blue-500 flex-shrink-0 mt-0.5" /> Add your preferred vendors so we can auto-dispatch maintenance jobs</div>
-                <div className="flex items-start gap-2 text-sm text-gray-700"><Building2 size={14} className="text-blue-500 flex-shrink-0 mt-0.5" /> Upload your lease documents in the Leases tab to enable AI-powered renewals</div>
+                <div className="flex items-start gap-2 text-sm text-gray-700"><Building2 size={14} className="text-blue-500 flex-shrink-0 mt-0.5" /> Upload your lease documents in the Leases tab to enable one-click renewals</div>
               </div>
 
               <button onClick={handleNext} className="w-full py-3 bg-brand-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-brand-700">

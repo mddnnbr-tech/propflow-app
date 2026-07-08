@@ -37,7 +37,6 @@ async function processAutopayments() {
           },
         },
       },
-      autopayBankAccount: true,
     },
   });
 
@@ -55,7 +54,7 @@ async function processAutopayments() {
 
     const dueDate = new Date(year, month, dueDay);
     const monthName = dueDate.toLocaleString('default', { month: 'long' });
-    const bank = lease.autopayBankAccount;
+    const bank = await prisma.bankAccount.findUnique({ where: { id: lease.autopayBankAccountId } });
 
     if (!bank) continue;
 
@@ -64,7 +63,7 @@ async function processAutopayments() {
       await notificationService.createNotification(prisma, {
         userId: lease.tenantId,
         title: 'Autopay Reminder',
-        message: `Your autopay account (${bank.bankName || 'manual account'}) is set but can't auto-debit. Please pay your ${monthName} rent of $${lease.rentAmount.toFixed(2)} manually today.`,
+        message: `Your autopay account (${bank.institutionName || 'manual account'}) is set but can't auto-debit. Please pay your ${monthName} rent of $${lease.rentAmount.toFixed(2)} manually today.`,
         type: 'payment',
         linkTo: '/tenant/pay',
       });
@@ -86,7 +85,7 @@ async function processAutopayments() {
           method: 'ACH',
           status: 'PROCESSING',
           dueDate,
-          notes: `Autopay — ${bank.bankName || 'Linked bank'} ••••${bank.accountMask || bank.accountNumberLast4 || '????'}`,
+          notes: `Autopay — ${bank.institutionName || 'Linked bank'} ••••${bank.accountMask || bank.accountNumberLast4 || '????'}`,
         },
       });
 
@@ -97,7 +96,7 @@ async function processAutopayments() {
       await notificationService.createNotification(prisma, {
         userId: lease.tenantId,
         title: 'Autopay Initiated',
-        message: `Your ${monthName} rent of $${lease.rentAmount.toFixed(2)} is being processed from ${bank.bankName || 'your linked bank'} ••••${bank.accountMask || ''}. It will clear in 1–3 business days.`,
+        message: `Your ${monthName} rent of $${lease.rentAmount.toFixed(2)} is being processed from ${bank.institutionName || 'your linked bank'} ••••${bank.accountMask || ''}. It will clear in 1–3 business days.`,
         type: 'payment',
         linkTo: '/tenant/pay',
       });
@@ -144,7 +143,6 @@ async function sendAutopayReminders() {
           },
         },
       },
-      autopayBankAccount: true,
     },
   });
 
@@ -159,12 +157,12 @@ async function sendAutopayReminders() {
 
     const dueDate = new Date(year, month, dueDay);
     const monthName = dueDate.toLocaleString('default', { month: 'long' });
-    const bank = lease.autopayBankAccount;
+    const bank = await prisma.bankAccount.findUnique({ where: { id: lease.autopayBankAccountId } });
 
     await notificationService.createNotification(prisma, {
       userId: lease.tenantId,
       title: 'Autopay in 3 Days',
-      message: `Your ${monthName} rent of $${lease.rentAmount.toFixed(2)} will autopay on the ${dueDay}${ordinal(dueDay)} from ${bank?.bankName || 'your linked bank'} ••••${bank?.accountMask || ''}. Ensure funds are available.`,
+      message: `Your ${monthName} rent of $${lease.rentAmount.toFixed(2)} will autopay on the ${dueDay}${ordinal(dueDay)} from ${bank?.institutionName || 'your linked bank'} ••••${bank?.accountMask || ''}. Ensure funds are available.`,
       type: 'payment',
       linkTo: '/tenant/pay',
     });

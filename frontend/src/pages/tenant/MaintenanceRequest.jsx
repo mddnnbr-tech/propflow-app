@@ -102,9 +102,9 @@ export default function TenantMaintenance() {
 
               {selected.aiTrade && (
                 <div className="p-3 bg-purple-50 rounded-xl">
-                  <p className="text-xs text-purple-700 font-semibold">AI Classification</p>
+                  <p className="text-xs text-gray-700 font-semibold">Issue Type</p>
                   <p className="text-sm text-purple-900 font-bold mt-0.5">{selected.aiTrade}</p>
-                  {selected.aiSummary && <p className="text-xs text-purple-700 mt-1">{selected.aiSummary}</p>}
+                  {selected.aiSummary && <p className="text-xs text-gray-600 mt-1">{selected.aiSummary}</p>}
                 </div>
               )}
 
@@ -186,7 +186,7 @@ function SubmitRequestModal({ onClose, onSave }) {
               <h2 className="font-bold text-xl">Request Submitted!</h2>
             </div>
             <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl text-center">
-              <p className="text-xs text-purple-600 font-medium uppercase tracking-wider">AI Detected</p>
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Detected Issue</p>
               <p className="text-2xl font-bold text-purple-800 mt-1">{aiPreview.trade}</p>
               <p className="text-sm text-purple-700 mt-1">{aiPreview.summary}</p>
               {aiPreview.priority !== 'NORMAL' && (
@@ -214,7 +214,7 @@ function SubmitRequestModal({ onClose, onSave }) {
           {/* Photo upload */}
           <div>
             <label className="block text-sm font-semibold mb-2">Photos (Recommended)</label>
-            <p className="text-xs text-gray-500 mb-3">Take a photo — our AI will identify the issue and route the right contractor automatically.</p>
+            <p className="text-xs text-gray-500 mb-3">Take a photo — we identify the issue and route the right contractor automatically.</p>
             <div className="flex gap-2 flex-wrap">
               {previews.map((p, i) => (
                 <div key={i} className="relative">

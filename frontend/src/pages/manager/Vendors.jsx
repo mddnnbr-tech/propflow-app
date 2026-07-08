@@ -89,7 +89,7 @@ export default function ManagerVendors() {
 
       <div className="bg-brand-50 border border-brand-200 rounded-2xl p-4 text-sm text-brand-800">
         <p className="font-semibold mb-1">Auto-Dispatch</p>
-        <p>Enable "Auto-Dispatch" on a vendor to have PropFlow automatically send them maintenance jobs when an AI-classified photo matches their trade. You can review all dispatches in the Maintenance tab.</p>
+        <p>Enable "Auto-Dispatch" on a vendor to have PropFlow automatically send them maintenance jobs when a request matches their trade. You can review all dispatches in the Maintenance tab.</p>
       </div>
 
       {/* Payment Settings */}
@@ -220,7 +220,7 @@ export default function ManagerVendors() {
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                 <div>
                   <p className="text-sm font-medium">Auto-Dispatch</p>
-                  <p className="text-xs text-gray-500">Automatically assign this vendor when AI detects their trade</p>
+                  <p className="text-xs text-gray-500">Automatically assign this vendor when a request matches their trade</p>
                 </div>
                 <button
                   type="button"

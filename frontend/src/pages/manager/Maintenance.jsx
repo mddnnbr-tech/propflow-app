@@ -213,7 +213,7 @@ export default function ManagerMaintenance() {
                 <div className="col-span-2"><p className="text-xs text-gray-500">Unit</p><p className="font-medium">{selected.unit.property.name} · {selected.unit.unitNumber} · {selected.unit.property.address}</p></div>
                 <div className="col-span-2"><p className="text-xs text-gray-500">Description</p><p className="font-medium">{selected.description}</p></div>
                 {selected.managerNotes && <div className="col-span-2"><p className="text-xs text-gray-500">Notes</p><p className="font-medium">{selected.managerNotes}</p></div>}
-                {selected.aiSummary && <div className="col-span-2"><p className="text-xs text-gray-500">AI Analysis</p><p className="text-sm text-brand-800 bg-brand-50 p-3 rounded-xl border border-brand-100">{selected.aiSummary}</p></div>}
+                {selected.aiSummary && <div className="col-span-2"><p className="text-xs text-gray-500">Issue Summary</p><p className="text-sm text-brand-800 bg-brand-50 p-3 rounded-xl border border-brand-100">{selected.aiSummary}</p></div>}
               </div>
 
               {selected.photoUrls?.length > 0 && (

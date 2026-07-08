@@ -17,7 +17,7 @@ KEY FEATURES YOU KNOW ABOUT:
 - Notifications: Managers set their own notification preferences — stay informed without being the middleman
 - Onboarding: First login walks both managers and tenants through setup step by step
 - Vendor network: Managers add preferred vendors by trade (plumber, electrician, HVAC, etc.)
-- Pricing: PropFlow offers a 90-day free trial. No credit card required to start. After the trial, a subscription plan is required to continue.
+- Pricing: PropFlow is always free for tenants. Property managers get a 90-day free trial — a card is collected at signup but nothing is billed until the trial ends, and they can cancel any time before then at no charge. For current plan pricing, direct them to support@propflow.app.
 
 SUPPORT CONTACT:
 - The ONLY support email is: support@propflow.app

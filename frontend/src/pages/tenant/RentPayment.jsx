@@ -382,7 +382,7 @@ export default function TenantRentPayment() {
               <div className="flex rounded-xl bg-gray-100 p-1">
                 {['VENMO', 'ZELLE'].map((m) => (
                   <button key={m} onClick={() => setVenmoMethod(m)} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${venmoMethod === m ? 'bg-white shadow' : 'text-gray-500'}`}>
-                    {m === 'VENMO' ? '💜 Venmo' : '🟡 Zelle'}
+                    {m === 'VENMO' ? 'Venmo' : 'Zelle'}
                   </button>
                 ))}
               </div>
@@ -475,13 +475,13 @@ export default function TenantRentPayment() {
 
               <div className="bg-white rounded-2xl border p-4">
                 <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Amount on Check <span className="text-gray-400 font-normal">(override if AI misreads)</span>
+                  Amount on Check <span className="text-gray-400 font-normal">(override if needed)</span>
                 </label>
                 <div className="flex items-center border rounded-xl overflow-hidden">
                   <span className="px-3 py-2 text-sm text-gray-400 bg-gray-50 border-r">$</span>
                   <input type="number" min="1" step="0.01" placeholder={lease.rentAmount.toLocaleString()} className="flex-1 px-3 py-2 text-sm focus:outline-none" value={checkAmountOverride} onChange={(e) => setCheckAmountOverride(e.target.value)} />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Our AI reads the amount automatically. Only fill this if needed.</p>
+                <p className="text-xs text-gray-400 mt-1">We read the amount from the check automatically. Only fill this in if it looks wrong.</p>
               </div>
 
               {(!checkFront || !checkBack) && (
@@ -492,7 +492,7 @@ export default function TenantRentPayment() {
               )}
 
               <button onClick={submitCheck} disabled={!checkFront || !checkBack || submittingCheck} className="w-full py-4 bg-brand-600 text-white font-bold rounded-2xl disabled:opacity-50 hover:bg-brand-700 transition-colors">
-                {submittingCheck ? 'Reading check with AI...' : 'Submit Check Payment'}
+                {submittingCheck ? 'Reading check...' : 'Submit Check Payment'}
               </button>
             </>
           )}

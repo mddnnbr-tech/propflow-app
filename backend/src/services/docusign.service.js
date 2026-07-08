@@ -14,7 +14,10 @@ async function getApiClient() {
     return apiClient;
   }
 
-  const privateKey = fs.readFileSync(process.env.DOCUSIGN_PRIVATE_KEY_PATH);
+  // Key can come from an env var (Railway) or a file path (local dev)
+  const privateKey = process.env.DOCUSIGN_PRIVATE_KEY
+    ? Buffer.from(process.env.DOCUSIGN_PRIVATE_KEY.replace(/\\n/g, '\n'))
+    : fs.readFileSync(process.env.DOCUSIGN_PRIVATE_KEY_PATH);
   const results = await apiClient.requestJWTUserToken(
     process.env.DOCUSIGN_INTEGRATION_KEY,
     process.env.DOCUSIGN_USER_ID,

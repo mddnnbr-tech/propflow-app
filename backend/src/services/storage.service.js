@@ -14,7 +14,10 @@ function getFileUrl(file) {
   // Local: build URL relative to Express static /uploads route
   const uploadsDir = path.join(__dirname, '../../uploads');
   const relativePath = path.relative(uploadsDir, file.path).replace(/\\/g, '/');
-  return `${process.env.FRONTEND_URL?.replace(':3000', ':5000') || 'http://localhost:5000'}/uploads/${relativePath}`;
+  const base = process.env.BACKEND_URL
+    || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : null)
+    || 'http://localhost:5000';
+  return `${base}/uploads/${relativePath}`;
 }
 
 module.exports = { getFileUrl };

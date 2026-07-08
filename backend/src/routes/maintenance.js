@@ -172,24 +172,24 @@ router.post('/:id/dispatch', authenticate, requireRole('MANAGER'), async (req, r
     include: { vendor: true },
   });
 
-  // Tier-based vendor automation (Growth/Pro send rich email + SMS + follow-ups)
+  // Respond immediately — emails/SMS run in the background so slow SMTP
+  // can't hang the request past the proxy timeout
+  res.json(updated);
+
   const tier = process.env.ACCOUNT_TIER || 'GROWTH';
-  await onVendorDispatched(prisma, {
+  onVendorDispatched(prisma, {
     request: { ...request, unit: request.unit },
     vendor,
     manager: req.user,
     tier,
-  });
+  }).catch((err) => console.error('Vendor dispatch notification error:', err.message));
 
-  // Notify tenant
-  await notificationService.createNotification(prisma, {
+  notificationService.createNotification(prisma, {
     userId: request.tenantId,
     title: 'Vendor Dispatched',
     message: `${vendor.name} has been dispatched for your maintenance request. They will contact you soon.`,
     type: 'maintenance',
-  });
-
-  res.json(updated);
+  }).catch((err) => console.error('Tenant dispatch notification error:', err.message));
 });
 
 // PUT /api/maintenance/:id  — update status / add manager notes / set cost
@@ -213,7 +213,7 @@ router.put('/:id', authenticate, requireRole('MANAGER'), async (req, res) => {
       // Flag in notes that this exceeded threshold
       await notificationService.createNotification(prisma, {
         userId: req.user.id,
-        title: `⚠️ Repair Cost Exceeds Threshold`,
+        title: `Repair Cost Exceeds Threshold`,
         message: `Job at ${request.unit.property.name} Unit ${request.unit.unitNumber} cost $${cost} — above your $${effectiveThreshold} approval threshold. Please review before paying vendor.`,
         type: 'maintenance',
         linkTo: `/manager/maintenance`,
@@ -231,6 +231,9 @@ router.put('/:id', authenticate, requireRole('MANAGER'), async (req, res) => {
     },
   });
 
+  // Respond before sending completion emails so slow SMTP can't hang the request
+  res.json(updated);
+
   if (status === 'COMPLETED') {
     const fullRequest = await prisma.maintenanceRequest.findUnique({
       where: { id: req.params.id },
@@ -241,16 +244,14 @@ router.put('/:id', authenticate, requireRole('MANAGER'), async (req, res) => {
       },
     });
     if (fullRequest) {
-      await onJobCompleted(prisma, {
+      onJobCompleted(prisma, {
         request: fullRequest,
         vendor: fullRequest.vendor,
         manager: fullRequest.unit.property.manager,
         tenant: fullRequest.tenant,
-      });
+      }).catch((err) => console.error('Job completion notification error:', err.message));
     }
   }
-
-  res.json(updated);
 });
 
 // POST /api/maintenance/:id/pay-vendor  — manager marks vendor as paid

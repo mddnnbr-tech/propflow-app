@@ -45,6 +45,8 @@ export default function ManagerLayout() {
   function handleOnboardingComplete() {
     localStorage.setItem('manager_onboarded', '1');
     setShowOnboarding(false);
+    // Reload so the dashboard reflects everything created during onboarding
+    window.location.reload();
   }
   function handleLogout() { logout(); navigate('/login'); }
 

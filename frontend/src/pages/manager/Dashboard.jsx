@@ -63,7 +63,7 @@ export default function ManagerDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Portfolio Overview</h1>
-          <p className="text-sm text-slate-500 mt-0.5">{stats.totalProperties} {stats.totalProperties === 1 ? 'property' : 'properties'} · {stats.totalUnits} units total</p>
+          <p className="text-sm text-slate-500 mt-0.5">{stats.totalProperties} {stats.totalProperties === 1 ? 'property' : 'properties'} · {stats.totalUnits} {stats.totalUnits === 1 ? 'unit' : 'units'} total</p>
         </div>
         <button onClick={load} className="btn-ghost">
           <RefreshCw size={14} /> Refresh

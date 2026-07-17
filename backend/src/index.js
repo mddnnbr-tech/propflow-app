@@ -32,6 +32,12 @@ app.use('/api/expenses', require('./routes/expenses'));
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
+// Email diagnostics — verifies SMTP connection without sending (no secrets exposed)
+app.get('/api/health/email', async (req, res) => {
+  const result = await require('./services/notifications.service').verifyEmail();
+  res.status(result.ok ? 200 : 503).json(result);
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);

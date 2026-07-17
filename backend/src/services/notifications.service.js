@@ -23,7 +23,7 @@ function getTransporter() {
 async function sendEmail({ to, subject, text, html }) {
   if (!process.env.SMTP_USER) {
     console.log(`[Email stub] To: ${to} | Subject: ${subject}`);
-    return;
+    return { ok: false, error: 'SMTP not configured (SMTP_USER missing)' };
   }
   try {
     await getTransporter().sendMail({
@@ -33,8 +33,21 @@ async function sendEmail({ to, subject, text, html }) {
       text,
       html,
     });
+    return { ok: true };
   } catch (err) {
     console.error('Email send error:', err.message);
+    return { ok: false, error: err.message };
+  }
+}
+
+// Verify SMTP connectivity without sending anything (for diagnostics)
+async function verifyEmail() {
+  if (!process.env.SMTP_USER) return { ok: false, error: 'SMTP_USER is not set' };
+  try {
+    await getTransporter().verify();
+    return { ok: true, user: process.env.SMTP_USER.replace(/(.{2}).*(@.*)/, '$1***$2') };
+  } catch (err) {
+    return { ok: false, error: err.message };
   }
 }
 
@@ -57,4 +70,4 @@ async function createNotification(prisma, { userId, title, message, type, linkTo
   });
 }
 
-module.exports = { sendEmail, sendSMS, createNotification };
+module.exports = { sendEmail, sendSMS, createNotification, verifyEmail };

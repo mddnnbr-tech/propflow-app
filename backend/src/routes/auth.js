@@ -121,20 +121,26 @@ router.post('/invite-tenant', authenticate, async (req, res) => {
   }
 
   let tenant = await prisma.user.findUnique({ where: { email } });
+  let emailResult = { ok: true, existing: true };
   if (!tenant) {
     const tempPassword = Math.random().toString(36).slice(-10);
     const hashed = await bcrypt.hash(tempPassword, 12);
     tenant = await prisma.user.create({
       data: { email, firstName, lastName, phone, role: 'TENANT', password: hashed },
     });
-    await notificationService.sendEmail({
+    const appUrl = process.env.FRONTEND_URL || 'https://propflow-app-production-4ee4.up.railway.app';
+    emailResult = await notificationService.sendEmail({
       to: email,
       subject: 'Welcome to PropFlow — Your Tenant Portal',
-      text: `Hi ${firstName},\n\nYour landlord has invited you to PropFlow.\n\nLogin: ${email}\nTemporary password: ${tempPassword}\n\nPlease change your password after first login.`,
+      text: `Hi ${firstName},\n\nYour property manager has invited you to PropFlow, where you can pay rent, submit maintenance requests, and view your lease.\n\nSign in: ${appUrl}\nLogin: ${email}\nTemporary password: ${tempPassword}\n\nPlease change your password after first login.\n\n— The PropFlow Team`,
     });
   }
 
-  res.json({ tenant: { id: tenant.id, email: tenant.email, firstName: tenant.firstName, lastName: tenant.lastName } });
+  res.json({
+    tenant: { id: tenant.id, email: tenant.email, firstName: tenant.firstName, lastName: tenant.lastName },
+    emailSent: !!emailResult.ok,
+    emailError: emailResult.ok ? undefined : emailResult.error,
+  });
 });
 
 // POST /api/auth/managed-services-interest — tenant or manager expresses interest in managed services

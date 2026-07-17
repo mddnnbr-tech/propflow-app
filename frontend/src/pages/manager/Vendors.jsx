@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
-import { Users, Plus, Pencil, Trash2, X, Zap, Star, Settings, DollarSign } from 'lucide-react';
+import { Users, Plus, Pencil, Trash2, X, Zap, Star, Settings, DollarSign, Download } from 'lucide-react';
+import DropZone from '../../components/DropZone';
 
 const TRADES = ['Plumbing', 'Electrical', 'HVAC', 'Appliance Repair', 'Carpentry', 'Painting', 'Roofing', 'General Maintenance', 'Pest Control', 'Locksmith', 'Flooring'];
 
@@ -14,6 +15,58 @@ export default function ManagerVendors() {
   // Payment settings
   const [settings, setSettings] = useState({ venmoHandle: '', zelleInfo: '', vendorCostThreshold: 500 });
   const [savingSettings, setSavingSettings] = useState(false);
+
+  // Vendor list import
+  const [importing, setImporting] = useState(false);
+  const [importedVendors, setImportedVendors] = useState(null); // null | array pending review
+  const [savingImport, setSavingImport] = useState(false);
+
+  async function handleImportFile(file) {
+    setImporting(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await api.post('/vendors/import-file', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setImportedVendors(res.data.vendors);
+      toast.success(`Found ${res.data.vendors.length} vendors — review and confirm below`);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Could not read that file');
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  async function confirmImport() {
+    setSavingImport(true);
+    try {
+      const res = await api.post('/vendors/bulk', importedVendors);
+      toast.success(`${res.data.created} vendors added to your preferred list!`);
+      setImportedVendors(null);
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Import failed');
+    } finally {
+      setSavingImport(false);
+    }
+  }
+
+  function removeImportRow(idx) {
+    setImportedVendors((rows) => rows.filter((_, i) => i !== idx));
+  }
+
+  async function exportVendors() {
+    try {
+      const res = await api.get('/vendors/export', { responseType: 'blob' });
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `propflow-vendors-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error('Export failed');
+    }
+  }
 
   useEffect(() => {
     load();
@@ -82,14 +135,70 @@ export default function ManagerVendors() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Preferred Vendors</h1>
-        <button onClick={openNew} className="btn-primary">
-          <Plus size={16} /> Add Vendor
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={exportVendors} className="flex items-center gap-1.5 px-4 py-2 border border-slate-300 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+            <Download size={15} /> Export to Excel
+          </button>
+          <button onClick={openNew} className="btn-primary">
+            <Plus size={16} /> Add Vendor
+          </button>
+        </div>
       </div>
 
       <div className="bg-brand-50 border border-brand-200 rounded-2xl p-4 text-sm text-brand-800">
         <p className="font-semibold mb-1">Auto-Dispatch</p>
         <p>Enable "Auto-Dispatch" on a vendor to have PropFlow automatically send them maintenance jobs when a request matches their trade. You can review all dispatches in the Maintenance tab.</p>
+      </div>
+
+      {/* Import preferred vendor list */}
+      <div className="card p-5 space-y-3">
+        <div>
+          <h2 className="font-semibold">Import Your Preferred Vendor List</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Already have a vendor list? Drop it here — we'll read it and add every vendor for you. PDF, photo, or spreadsheet.</p>
+        </div>
+        <DropZone
+          onFile={handleImportFile}
+          accept=".pdf,.csv,.txt,.jpg,.jpeg,.png,.webp"
+          label="Drop your vendor list here"
+          uploading={importing}
+          uploadingLabel="Reading your vendor list"
+        />
+        {importedVendors && (
+          <div className="space-y-3">
+            <div className="overflow-x-auto border rounded-xl">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 text-left text-xs text-slate-500">
+                  <tr>
+                    <th className="px-3 py-2">Name</th>
+                    <th className="px-3 py-2">Trade</th>
+                    <th className="px-3 py-2">Phone</th>
+                    <th className="px-3 py-2">Email</th>
+                    <th className="px-3 py-2" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {importedVendors.map((v, i) => (
+                    <tr key={i} className="border-t">
+                      <td className="px-3 py-2 font-medium text-slate-900">{v.name}</td>
+                      <td className="px-3 py-2 text-slate-600">{v.trade}</td>
+                      <td className="px-3 py-2 text-slate-600">{v.phone || '—'}</td>
+                      <td className="px-3 py-2 text-slate-600">{v.email || '—'}</td>
+                      <td className="px-3 py-2 text-right">
+                        <button onClick={() => removeImportRow(i)} className="text-slate-400 hover:text-red-500"><X size={14} /></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex items-center justify-between">
+              <button onClick={() => setImportedVendors(null)} className="text-sm text-slate-500 hover:text-slate-700">Cancel</button>
+              <button onClick={confirmImport} disabled={savingImport || importedVendors.length === 0} className="btn-primary disabled:opacity-50">
+                {savingImport ? 'Adding…' : `Add ${importedVendors.length} Vendors`}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Payment Settings */}

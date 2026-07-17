@@ -213,4 +213,53 @@ Return only the JSON object, no markdown.`,
   return JSON.parse(text);
 }
 
-module.exports = { classifyMaintenancePhoto, readCheck, parseLease, researchPropertyValue };
+// ─── Extract a preferred-vendor list from an uploaded PDF / image / spreadsheet ─
+async function extractVendorList(filePath, originalName = '') {
+  const ext = path.extname(originalName || filePath).toLowerCase();
+  const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+
+  let contentBlock;
+  if (ext === '.pdf') {
+    contentBlock = {
+      type: 'document',
+      source: { type: 'base64', media_type: 'application/pdf', data: imageToBase64(filePath) },
+    };
+  } else if (IMAGE_EXTS.includes(ext)) {
+    contentBlock = {
+      type: 'image',
+      source: { type: 'base64', media_type: getMediaType(filePath), data: imageToBase64(filePath) },
+    };
+  } else {
+    // CSV / TXT — send raw text
+    const text = fs.readFileSync(filePath, 'utf8').slice(0, 30000);
+    contentBlock = { type: 'text', text: `Vendor list file contents:\n\n${text}` };
+  }
+
+  const message = await anthropic.messages.create({
+    model: 'claude-sonnet-5',
+    max_tokens: 4000,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          contentBlock,
+          {
+            type: 'text',
+            text: `This is a property manager's preferred vendor / contractor list. Extract every vendor into a JSON array. For each vendor return:
+{"name": string, "trade": string (one of: Plumbing, Electrical, HVAC, Appliance Repair, Carpentry, Painting, Roofing, General Maintenance, Pest Control, Locksmith, Flooring, Landscaping, Other — pick the closest), "phone": string or "", "email": string or null, "address": string or null, "licenseNumber": string or null, "notes": string or null}
+
+Return ONLY the JSON array, no other text. If you cannot find any vendors, return [].`,
+          },
+        ],
+      },
+    ],
+  });
+
+  const raw = message.content[0].text.trim();
+  const jsonStart = raw.indexOf('[');
+  const jsonEnd = raw.lastIndexOf(']');
+  if (jsonStart === -1 || jsonEnd === -1) return [];
+  return JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+}
+
+module.exports = { classifyMaintenancePhoto, readCheck, parseLease, researchPropertyValue, extractVendorList };

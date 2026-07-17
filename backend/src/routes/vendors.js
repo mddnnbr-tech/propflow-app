@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { documentUpload } = require('../middleware/upload');
 const storageService = require('../services/storage.service');
+const aiService = require('../services/ai.service');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -66,6 +67,56 @@ router.post('/bulk', authenticate, requireRole('MANAGER'), async (req, res) => {
 
   const result = await prisma.vendor.createMany({ data, skipDuplicates: false });
   res.status(201).json({ created: result.count });
+});
+
+// POST /api/vendors/import-file — upload a preferred vendor list (PDF, image, CSV)
+// Extracts vendors from the document and returns them for review (does NOT save yet)
+router.post(
+  '/import-file',
+  authenticate,
+  requireRole('MANAGER'),
+  (req, res, next) => { req.uploadFolder = 'vendor-lists'; next(); },
+  documentUpload.single('file'),
+  async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    let vendors = [];
+    try {
+      vendors = await aiService.extractVendorList(req.file.path, req.file.originalname);
+    } catch (err) {
+      console.error('Vendor list extraction error:', err.message);
+      return res.status(422).json({ error: 'Could not read a vendor list from that file. Try a clearer PDF or a CSV.' });
+    }
+
+    if (!vendors.length) {
+      return res.status(422).json({ error: 'No vendors found in that file. Make sure it lists vendor names and trades.' });
+    }
+
+    res.json({ vendors, fileUrl: storageService.getFileUrl(req.file) });
+  }
+);
+
+// GET /api/vendors/export — download vendor list as CSV (opens in Excel)
+router.get('/export', authenticate, requireRole('MANAGER'), async (req, res) => {
+  const vendors = await prisma.vendor.findMany({
+    where: { managerId: req.user.id },
+    orderBy: [{ isPreferred: 'desc' }, { trade: 'asc' }, { name: 'asc' }],
+  });
+
+  const esc = (v) => {
+    if (v === null || v === undefined) return '';
+    const s = String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+
+  const header = 'Name,Trade,Phone,Email,Address,License #,Preferred,Auto-Dispatch,Rating,Jobs Completed Threshold,Notes';
+  const lines = vendors.map((v) =>
+    [v.name, v.trade, v.phone, v.email, v.address, v.licenseNumber, v.isPreferred ? 'Yes' : 'No', v.autoDispatch ? 'Yes' : 'No', v.rating, v.costThreshold, v.notes].map(esc).join(',')
+  );
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="propflow-vendors-${new Date().toISOString().slice(0, 10)}.csv"`);
+  res.send('﻿' + [header, ...lines].join('\r\n'));
 });
 
 // PUT /api/vendors/:id

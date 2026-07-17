@@ -376,10 +376,11 @@ function InfoRow({ label, value }) {
 
 function CreateLeaseModal({ onClose, onSave }) {
   const [form, setForm] = useState({
-    unitId: '', tenantId: '', startDate: '', endDate: '',
+    unitId: '', startDate: '', endDate: '',
     rentAmount: '', depositAmount: '', rentDueDay: '1',
     lateFeeGraceDays: '5', lateFee: '', autoRenew: false,
   });
+  const [tenant, setTenant] = useState({ firstName: '', lastName: '', email: '', phone: '' });
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -393,8 +394,16 @@ function CreateLeaseModal({ onClose, onSave }) {
     e.preventDefault();
     setLoading(true);
     try {
+      // Invite (or find) the tenant by email — sends them a welcome email with login
+      const inviteRes = await api.post('/auth/invite-tenant', { ...tenant, unitId: form.unitId });
+      const tenantId = inviteRes.data.tenant.id;
+      if (inviteRes.data.emailSent === false) {
+        toast.error('Tenant added, but the invite email could not be sent — share their login manually.', { duration: 8000 });
+      }
+
       await api.post('/leases', {
         ...form,
+        tenantId,
         rentAmount: Number(form.rentAmount),
         depositAmount: Number(form.depositAmount || 0),
         rentDueDay: Number(form.rentDueDay),
@@ -403,6 +412,8 @@ function CreateLeaseModal({ onClose, onSave }) {
       });
       toast.success('Lease created!');
       onSave();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Could not create lease');
     } finally {
       setLoading(false);
     }
@@ -425,10 +436,28 @@ function CreateLeaseModal({ onClose, onSave }) {
               {allUnits.map((u) => <option key={u.id} value={u.id}>{u.propertyName} — Unit {u.unitNumber} (${u.rentAmount}/mo)</option>)}
             </select>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Tenant ID</label>
-            <input className={inp} required placeholder="Tenant user ID (from invite)" value={form.tenantId} onChange={(e) => setForm({ ...form, tenantId: e.target.value })} />
-            <p className="text-xs text-gray-400 mt-1">Invite the tenant first via Settings → Invite Tenant</p>
+          {/* Tenant info — invited automatically with a welcome email */}
+          <div className="p-4 bg-gray-50 rounded-xl space-y-3">
+            <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Tenant</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">First Name</label>
+                <input className={inp} required placeholder="Jamie" value={tenant.firstName} onChange={(e) => setTenant({ ...tenant, firstName: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Last Name</label>
+                <input className={inp} required placeholder="Smith" value={tenant.lastName} onChange={(e) => setTenant({ ...tenant, lastName: e.target.value })} />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Email</label>
+              <input type="email" className={inp} required placeholder="tenant@email.com" value={tenant.email} onChange={(e) => setTenant({ ...tenant, email: e.target.value })} />
+              <p className="text-xs text-gray-400 mt-1">They'll get a welcome email with their login and a link to the tenant portal.</p>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Phone <span className="text-gray-400">(optional)</span></label>
+              <input type="tel" className={inp} placeholder="(555) 000-0000" value={tenant.phone} onChange={(e) => setTenant({ ...tenant, phone: e.target.value })} />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

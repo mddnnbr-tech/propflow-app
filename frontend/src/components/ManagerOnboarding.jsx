@@ -81,8 +81,12 @@ export default function ManagerOnboarding({ onComplete }) {
       if (!tenant.firstName || !tenant.email) return toast.error('First name and email are required');
       setSaving(true);
       try {
-        await api.post('/auth/invite-tenant', { ...tenant, unitId: createdUnitId });
-        toast.success('Invite sent to ' + tenant.email);
+        const res = await api.post('/auth/invite-tenant', { ...tenant, unitId: createdUnitId });
+        if (res.data.emailSent === false) {
+          toast.error('Tenant was added, but the invite email could not be sent. Share their login manually or contact support.', { duration: 8000 });
+        } else {
+          toast.success('Invite sent to ' + tenant.email);
+        }
         setStep((s) => s + 1);
       } catch { toast.error('Could not send invite — you can do this later from Properties'); } finally { setSaving(false); }
       return;

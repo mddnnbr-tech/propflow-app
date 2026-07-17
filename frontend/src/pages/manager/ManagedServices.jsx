@@ -4,10 +4,11 @@ import toast from 'react-hot-toast';
 import api from '../../api/client';
 
 const COORDINATOR_FEATURES = [
-  'Vendor sourcing and dispatch on your behalf',
-  'Get 3+ competitive quotes per job',
-  'Schedule coordination with tenant',
-  '48hr response guarantee',
+  'Vendor dispatch handled for you — we contact, schedule, and follow up',
+  'We locate and vet vendors in your area when you need a new one',
+  'Your preferred vendor list comes first — we dispatch the crafts you already trust',
+  'Competitive quotes on larger jobs',
+  'Schedule coordination with your tenant',
   'All job status updates handled for you',
   'Monthly maintenance summary report',
   'No property management license required',

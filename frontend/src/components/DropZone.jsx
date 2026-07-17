@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Upload, FileText, X, CheckCircle } from 'lucide-react';
 
-export default function DropZone({ onFile, accept = '.pdf,.doc,.docx', label = 'Drop your document here', uploading = false, uploaded = false }) {
+export default function DropZone({ onFile, accept = '.pdf,.doc,.docx', label = 'Drop your document here', uploading = false, uploaded = false, uploadingLabel = 'Reading lease terms', uploadedLabel = 'Upload complete — terms extracted' }) {
   const [dragging, setDragging] = useState(false);
   const [fileName, setFileName] = useState(null);
   const inputRef = useRef(null);
@@ -40,12 +40,12 @@ export default function DropZone({ onFile, accept = '.pdf,.doc,.docx', label = '
         <div className="flex flex-col items-center gap-2">
           <div className="w-10 h-10 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
           <p className="text-sm font-semibold text-blue-600">Analyzing document...</p>
-          <p className="text-xs text-blue-500">Reading lease terms</p>
+          <p className="text-xs text-blue-500">{uploadingLabel}</p>
         </div>
       ) : uploaded ? (
         <div className="flex flex-col items-center gap-2">
           <CheckCircle size={32} className="text-green-500" />
-          <p className="text-sm font-semibold text-green-700">Upload complete — terms extracted</p>
+          <p className="text-sm font-semibold text-green-700">{uploadedLabel}</p>
         </div>
       ) : fileName ? (
         <div className="flex items-center justify-between gap-3 text-left">

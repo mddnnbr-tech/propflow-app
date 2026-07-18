@@ -255,7 +255,8 @@ Return ONLY the JSON array, no other text. If you cannot find any vendors, retur
     ],
   });
 
-  const raw = message.content[0].text.trim();
+  const textBlock = message.content.find((b) => b.type === 'text');
+  const raw = (textBlock?.text || '').trim();
   const jsonStart = raw.indexOf('[');
   const jsonEnd = raw.lastIndexOf(']');
   if (jsonStart === -1 || jsonEnd === -1) return [];

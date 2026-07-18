@@ -31,16 +31,26 @@ const imageUpload = multer({
   fileFilter: fileFilter(['image/jpeg', 'image/png', 'image/webp', 'image/gif']),
 });
 
+const DOC_MIMETYPES = [
+  'image/jpeg', 'image/png', 'image/webp',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/csv', 'text/plain', 'application/vnd.ms-excel',
+];
+const DOC_EXTENSIONS = ['.pdf', '.doc', '.docx', '.csv', '.txt', '.jpg', '.jpeg', '.png', '.webp'];
+
 const documentUpload = multer({
   storage,
   limits: { fileSize: 25 * 1024 * 1024 }, // 25MB
-  fileFilter: fileFilter([
-    'image/jpeg', 'image/png', 'image/webp',
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'text/csv', 'text/plain', 'application/vnd.ms-excel',
-  ]),
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (DOC_MIMETYPES.includes(file.mimetype) || DOC_EXTENSIONS.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`File type not allowed: ${file.mimetype}`), false);
+    }
+  },
 });
 
 module.exports = { imageUpload, documentUpload };

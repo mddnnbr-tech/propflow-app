@@ -193,4 +193,79 @@ function buildRenewalDocument({ tenant, lease, newEndDate, newRentAmount }) {
 </html>`;
 }
 
-module.exports = { sendRenewal, getEnvelopeStatus, downloadSignedDocument };
+// Send any HTML document to a tenant for signature (new leases, addendums, custom docs)
+async function sendHtmlForSignature({ tenant, emailSubject, emailBlurb, html, documentName }) {
+  const apiClient = await getApiClient();
+  const envelopesApi = new docusign.EnvelopesApi(apiClient);
+  const tenantName = `${tenant.firstName} ${tenant.lastName}`;
+
+  const envelope = {
+    emailSubject,
+    emailBlurb,
+    documents: [
+      {
+        documentBase64: Buffer.from(html).toString('base64'),
+        name: documentName || 'Agreement',
+        fileExtension: 'html',
+        documentId: '1',
+      },
+    ],
+    recipients: {
+      signers: [
+        {
+          email: tenant.email,
+          name: tenantName,
+          recipientId: '1',
+          routingOrder: '1',
+          tabs: {
+            signHereTabs: [{ documentId: '1', pageNumber: '1', anchorString: '[[TENANT_SIGNATURE]]', anchorXOffset: '0', anchorYOffset: '0', anchorUnits: 'pixels' }],
+            dateSignedTabs: [{ documentId: '1', pageNumber: '1', anchorString: '[[DATE_SIGNED]]', anchorXOffset: '0', anchorYOffset: '0', anchorUnits: 'pixels' }],
+            fullNameTabs: [{ documentId: '1', pageNumber: '1', anchorString: '[[TENANT_NAME]]', anchorXOffset: '0', anchorYOffset: '0', anchorUnits: 'pixels' }],
+          },
+        },
+      ],
+    },
+    status: 'sent',
+  };
+
+  const result = await envelopesApi.createEnvelope(process.env.DOCUSIGN_ACCOUNT_ID, { envelopeDefinition: envelope });
+  return result.envelopeId;
+}
+
+// Wrap plain-text template content (with placeholders already filled) in a signable HTML document
+function buildTemplateDocument({ title, filledContent }) {
+  const escaped = filledContent
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"/><style>
+  body { font-family: Georgia, 'Times New Roman', serif; max-width: 720px; margin: 60px auto; color: #111; line-height: 1.7; font-size: 14px; }
+  pre { white-space: pre-wrap; font-family: inherit; }
+  .sig-block { margin-top: 60px; font-family: Arial, sans-serif; }
+  .sig-line { border-bottom: 1px solid #000; height: 40px; margin-bottom: 4px; }
+  .sig-label { font-size: 11px; color: #555; }
+  .anchor { font-size: 8px; color: white; }
+</style></head>
+<body>
+<pre>${escaped}</pre>
+<div class="sig-block">
+  <p><strong>Tenant Signature:</strong></p>
+  <div class="sig-line"></div>
+  <span class="anchor">[[TENANT_SIGNATURE]]</span>
+  <div class="sig-label">Tenant Signature</div>
+  <br/>
+  <p><strong>Tenant Printed Name:</strong></p>
+  <div class="sig-line"></div>
+  <span class="anchor">[[TENANT_NAME]]</span>
+  <div class="sig-label">Printed Name</div>
+  <br/>
+  <p><strong>Date Signed:</strong></p>
+  <div class="sig-line"></div>
+  <span class="anchor">[[DATE_SIGNED]]</span>
+  <div class="sig-label">Date</div>
+</div>
+</body>
+</html>`;
+}
+
+module.exports = { sendRenewal, getEnvelopeStatus, downloadSignedDocument, sendHtmlForSignature, buildTemplateDocument };

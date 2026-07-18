@@ -185,6 +185,84 @@ router.post('/:id/send-renewal', authenticate, requireRole('MANAGER'), async (re
   res.json({ message: 'Renewal sent', envelopeId });
 });
 
+// POST /api/leases/:id/send-for-signature — send lease (from template or uploaded doc) to tenant via DocuSign
+router.post('/:id/send-for-signature', authenticate, requireRole('MANAGER'), async (req, res) => {
+  const { templateId } = req.body;
+
+  const lease = await prisma.lease.findFirst({
+    where: { id: req.params.id, unit: { property: { managerId: req.user.id } } },
+    include: { tenant: true, unit: { include: { property: { include: { manager: true } } } } },
+  });
+  if (!lease) return res.status(404).json({ error: 'Lease not found' });
+
+  const tplId = templateId || lease.templateId;
+  if (!tplId) return res.status(400).json({ error: 'Pick a template first (or upload a signed lease instead).' });
+
+  const template = await prisma.leaseTemplate.findFirst({
+    where: { id: tplId, OR: [{ isSystem: true }, { managerId: req.user.id }] },
+  });
+  if (!template) return res.status(404).json({ error: 'Template not found' });
+
+  const manager = lease.unit.property.manager;
+  const fmt = (d) => new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const fills = {
+    LEASE_DATE: fmt(new Date()),
+    ORIGINAL_LEASE_DATE: fmt(lease.startDate),
+    LANDLORD_NAME: `${manager.firstName} ${manager.lastName}`,
+    COMPANY_NAME: `${manager.firstName} ${manager.lastName}`,
+    TENANT_NAME: `${lease.tenant.firstName} ${lease.tenant.lastName}`,
+    PROPERTY_ADDRESS: `${lease.unit.property.address}, ${lease.unit.property.city}, ${lease.unit.property.state} ${lease.unit.property.zip}`,
+    UNIT_NUMBER: lease.unit.unitNumber,
+    START_DATE: fmt(lease.startDate),
+    END_DATE: fmt(lease.endDate),
+    NEW_END_DATE: fmt(lease.endDate),
+    RENT_AMOUNT: lease.rentAmount.toFixed(2),
+    NEW_RENT_AMOUNT: lease.rentAmount.toFixed(2),
+    DEPOSIT_AMOUNT: (lease.depositAmount || 0).toFixed(2),
+    LATE_FEE: (lease.lateFee || 0).toFixed(2),
+    LATE_FEE_GRACE_DAYS: String(lease.lateFeeGraceDays ?? 5),
+    PAYMENT_ADDRESS: 'via the PropFlow tenant portal',
+    UTILITIES_INCLUDED: lease.utilitiesIncluded ? `Utilities included: ${lease.utilitiesIncluded}` : 'No utilities are included in rent unless otherwise agreed in writing.',
+    PET_POLICY: lease.petPolicy || 'No pets are permitted without prior written consent of the Landlord.',
+    AUTO_RENEW_CLAUSE: lease.autoRenew ? 'shall automatically renew on a month-to-month basis unless either party gives 30 days written notice' : 'shall terminate on the end date unless renewed in writing',
+    STATE: lease.unit.property.state,
+  };
+
+  // Fill every {{PLACEHOLDER}}; leave any unknown ones as blank lines to fill by hand
+  const filledContent = template.content.replace(/\{\{(\w+)\}\}/g, (_, key) => fills[key] ?? '____________');
+
+  let envelopeId;
+  try {
+    const html = docusignService.buildTemplateDocument({ title: template.name, filledContent });
+    envelopeId = await docusignService.sendHtmlForSignature({
+      tenant: lease.tenant,
+      emailSubject: `Action Required: ${template.name} — ${lease.unit.property.name} Unit ${lease.unit.unitNumber}`,
+      emailBlurb: `Hi ${lease.tenant.firstName}, your lease documents are ready to review and sign.`,
+      html,
+      documentName: template.name,
+    });
+  } catch (err) {
+    console.error('DocuSign error:', err.message);
+    return res.status(502).json({
+      error: 'The document could not be sent — e-signature service is unavailable or not configured. Nothing was sent to the tenant.',
+    });
+  }
+
+  await prisma.lease.update({
+    where: { id: req.params.id },
+    data: { templateId: template.id },
+  });
+
+  await notificationService.createNotification(prisma, {
+    userId: lease.tenantId,
+    title: 'Lease Ready to Sign',
+    message: `Your ${template.name} has been sent. Check your email to review and sign.`,
+    type: 'lease',
+  });
+
+  res.json({ message: 'Sent for signature', envelopeId });
+});
+
 // GET /api/leases/:id/market-rent — Pro tier: compare current rent to market
 router.get('/:id/market-rent', authenticate, requireRole('MANAGER'), async (req, res) => {
   const lease = await prisma.lease.findFirst({

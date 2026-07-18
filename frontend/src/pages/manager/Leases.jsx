@@ -19,6 +19,14 @@ const ORDINAL = (n) => {
   return n + (s[(v-20)%10] || s[v] || s[0]);
 };
 
+const TEMPLATE_CATEGORIES = {
+  lease: 'Leases',
+  renewal: 'Renewals',
+  addendum: 'Addendums',
+  inspection: 'Inspections',
+  vendor: 'Vendor Agreements',
+};
+
 export default function ManagerLeases() {
   const [leases, setLeases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +39,18 @@ export default function ManagerLeases() {
   const [scheduleForm, setScheduleForm] = useState({});
   const [savingSchedule, setSavingSchedule] = useState(false);
 
-  useEffect(() => { load(); }, []);
+  // Template library
+  const [templates, setTemplates] = useState([]);
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState(null);
+  const [showNewTemplate, setShowNewTemplate] = useState(false);
+  const [templateForm, setTemplateForm] = useState({ name: '', category: 'lease', description: '', content: '' });
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [signatureFor, setSignatureFor] = useState(null); // lease being sent for signature
+  const [signatureTemplateId, setSignatureTemplateId] = useState('');
+  const [sendingSignature, setSendingSignature] = useState(false);
+
+  useEffect(() => { load(); loadTemplates(); }, []);
 
   async function load() {
     setLoading(true);
@@ -40,6 +59,55 @@ export default function ManagerLeases() {
       setLeases(res.data);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadTemplates() {
+    try {
+      const res = await api.get('/templates');
+      setTemplates(res.data);
+    } catch { /* templates are non-critical */ }
+  }
+
+  async function previewFull(tpl) {
+    try {
+      const res = await api.get(`/templates/${tpl.id}`);
+      setPreviewTemplate(res.data);
+    } catch { toast.error('Could not load template'); }
+  }
+
+  async function saveTemplate() {
+    if (!templateForm.name || !templateForm.content) return toast.error('Name and document text are required');
+    setSavingTemplate(true);
+    try {
+      await api.post('/templates', templateForm);
+      toast.success('Template saved to your library!');
+      setShowNewTemplate(false);
+      setTemplateForm({ name: '', category: 'lease', description: '', content: '' });
+      loadTemplates();
+    } catch { toast.error('Could not save template'); } finally { setSavingTemplate(false); }
+  }
+
+  async function deleteTemplate(id) {
+    if (!confirm('Delete this template from your library?')) return;
+    await api.delete(`/templates/${id}`);
+    toast.success('Template deleted');
+    loadTemplates();
+  }
+
+  async function sendForSignature() {
+    if (!signatureTemplateId) return toast.error('Pick a template to send');
+    setSendingSignature(true);
+    try {
+      await api.post(`/leases/${signatureFor.id}/send-for-signature`, { templateId: signatureTemplateId });
+      toast.success('Sent! The tenant will get a DocuSign email to review and sign.');
+      setSignatureFor(null);
+      setSignatureTemplateId('');
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Could not send for signature', { duration: 8000 });
+    } finally {
+      setSendingSignature(false);
     }
   }
 
@@ -130,10 +198,58 @@ export default function ManagerLeases() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Leases</h1>
-        <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700">
-          <Plus size={16} /> New Lease
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowLibrary((v) => !v)} className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50">
+            <FileText size={16} /> Template Library
+          </button>
+          <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700">
+            <Plus size={16} /> New Lease
+          </button>
+        </div>
       </div>
+
+      {/* Template Library */}
+      {showLibrary && (
+        <div className="bg-white rounded-2xl border p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-semibold">Document Template Library</h2>
+              <p className="text-xs text-gray-500 mt-0.5">Ready-to-use legal documents. Rent, late fees, and dates fill in automatically from the lease when you send one for signature.</p>
+            </div>
+            <button onClick={() => setShowNewTemplate(true)} className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50">
+              <Plus size={13} /> Add Your Own
+            </button>
+          </div>
+          {Object.entries(TEMPLATE_CATEGORIES).map(([cat, label]) => {
+            const catTemplates = templates.filter((t) => t.category === cat);
+            if (catTemplates.length === 0) return null;
+            return (
+              <div key={cat}>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{label}</p>
+                <div className="grid md:grid-cols-2 gap-2">
+                  {catTemplates.map((t) => (
+                    <div key={t.id} className="border rounded-xl p-3 flex items-start justify-between gap-2 hover:border-blue-300 transition-colors">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
+                          {t.name}
+                          {t.isSystem && <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full font-medium">PropFlow</span>}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">{t.description}</p>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button onClick={() => previewFull(t)} className="text-xs text-blue-600 hover:underline">Preview</button>
+                        {!t.isSystem && (
+                          <button onClick={() => deleteTemplate(t.id)} className="text-gray-300 hover:text-red-500 ml-1"><X size={13} /></button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {loading ? (
         <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-20 bg-gray-200 rounded-2xl animate-pulse" />)}</div>
@@ -225,8 +341,14 @@ export default function ManagerLeases() {
                         {lease.lateFee ? ` · Late fee: $${lease.lateFee}` : ' · No late fee'}
                       </span>
                       <button
-                        onClick={() => openScheduleEdit(lease)}
+                        onClick={() => { setSignatureFor(lease); setSignatureTemplateId(''); }}
                         className="ml-auto flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                      >
+                        <Send size={11} /> Send for signature
+                      </button>
+                      <button
+                        onClick={() => openScheduleEdit(lease)}
+                        className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
                       >
                         <Settings size={11} /> Edit schedule
                       </button>
@@ -360,7 +482,97 @@ export default function ManagerLeases() {
         </div>
       )}
 
-      {showCreate && <CreateLeaseModal onClose={() => setShowCreate(false)} onSave={() => { setShowCreate(false); load(); }} />}
+      {showCreate && <CreateLeaseModal templates={templates} onClose={() => setShowCreate(false)} onSave={() => { setShowCreate(false); load(); }} />}
+
+      {/* Template preview modal */}
+      {previewTemplate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setPreviewTemplate(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b flex-shrink-0">
+              <div>
+                <h2 className="font-bold">{previewTemplate.name}</h2>
+                <p className="text-xs text-gray-500">{previewTemplate.description}</p>
+              </div>
+              <button onClick={() => setPreviewTemplate(null)} className="p-1 text-gray-400 hover:text-gray-600"><X size={20} /></button>
+            </div>
+            <div className="overflow-y-auto p-5">
+              <pre className="text-xs text-gray-800 whitespace-pre-wrap font-mono bg-gray-50 border rounded-xl p-4">{previewTemplate.content}</pre>
+            </div>
+            <div className="p-4 border-t text-xs text-gray-500 flex-shrink-0">
+              Fields like rent, dates, and late fees fill in automatically from the lease when you send this for signature.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New custom template modal */}
+      {showNewTemplate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowNewTemplate(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b flex-shrink-0">
+              <h2 className="font-bold">Add Your Own Template</h2>
+              <button onClick={() => setShowNewTemplate(false)} className="p-1 text-gray-400 hover:text-gray-600"><X size={20} /></button>
+            </div>
+            <div className="overflow-y-auto p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Template Name</label>
+                  <input className="w-full px-3 py-2 border rounded-xl text-sm" placeholder="e.g. My Louisiana Lease" value={templateForm.name} onChange={(e) => setTemplateForm((f) => ({ ...f, name: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
+                  <select className="w-full px-3 py-2 border rounded-xl text-sm" value={templateForm.category} onChange={(e) => setTemplateForm((f) => ({ ...f, category: e.target.value }))}>
+                    {Object.entries(TEMPLATE_CATEGORIES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Short Description</label>
+                <input className="w-full px-3 py-2 border rounded-xl text-sm" placeholder="What is this document for?" value={templateForm.description} onChange={(e) => setTemplateForm((f) => ({ ...f, description: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Document Text</label>
+                <textarea rows={12} className="w-full px-3 py-2 border rounded-xl text-xs font-mono" placeholder={'Paste your lease or agreement text here.\n\nUse placeholders that fill automatically:\n{{TENANT_NAME}} {{PROPERTY_ADDRESS}} {{UNIT_NUMBER}} {{START_DATE}} {{END_DATE}} {{RENT_AMOUNT}} {{DEPOSIT_AMOUNT}} {{LATE_FEE}} {{LATE_FEE_GRACE_DAYS}} {{LANDLORD_NAME}} {{STATE}}'} value={templateForm.content} onChange={(e) => setTemplateForm((f) => ({ ...f, content: e.target.value }))} />
+                <p className="text-xs text-gray-400 mt-1">Placeholders like {'{{RENT_AMOUNT}}'} and {'{{TENANT_NAME}}'} fill in automatically from each lease.</p>
+              </div>
+            </div>
+            <div className="p-4 border-t flex justify-end gap-2 flex-shrink-0">
+              <button onClick={() => setShowNewTemplate(false)} className="px-4 py-2 border rounded-xl text-sm text-gray-600">Cancel</button>
+              <button onClick={saveTemplate} disabled={savingTemplate} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold disabled:opacity-50 hover:bg-blue-700">
+                {savingTemplate ? 'Saving…' : 'Save Template'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Send for signature modal */}
+      {signatureFor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setSignatureFor(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b">
+              <div>
+                <h2 className="font-bold">Send for Signature</h2>
+                <p className="text-xs text-gray-500">{signatureFor.tenant.firstName} {signatureFor.tenant.lastName} · Unit {signatureFor.unit.unitNumber}</p>
+              </div>
+              <button onClick={() => setSignatureFor(null)} className="p-1 text-gray-400 hover:text-gray-600"><X size={20} /></button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Document</label>
+                <select className="w-full px-3 py-2 border rounded-xl text-sm" value={signatureTemplateId} onChange={(e) => setSignatureTemplateId(e.target.value)}>
+                  <option value="">Choose a template…</option>
+                  {templates.map((t) => <option key={t.id} value={t.id}>{t.name}{t.isSystem ? '' : ' (yours)'}</option>)}
+                </select>
+                <p className="text-xs text-gray-400 mt-1">Rent, dates, and fees fill in from this lease. The tenant gets a DocuSign email to review and sign.</p>
+              </div>
+              <button onClick={sendForSignature} disabled={sendingSignature || !signatureTemplateId} className="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold disabled:opacity-50 hover:bg-blue-700 flex items-center justify-center gap-2">
+                <Send size={14} /> {sendingSignature ? 'Sending…' : 'Send via DocuSign'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -374,11 +586,11 @@ function InfoRow({ label, value }) {
   );
 }
 
-function CreateLeaseModal({ onClose, onSave }) {
+function CreateLeaseModal({ templates = [], onClose, onSave }) {
   const [form, setForm] = useState({
     unitId: '', startDate: '', endDate: '',
     rentAmount: '', depositAmount: '', rentDueDay: '1',
-    lateFeeGraceDays: '5', lateFee: '', autoRenew: false,
+    lateFeeGraceDays: '5', lateFee: '', autoRenew: false, templateId: '',
   });
   const [tenant, setTenant] = useState({ firstName: '', lastName: '', email: '', phone: '' });
   const [properties, setProperties] = useState([]);
@@ -404,6 +616,7 @@ function CreateLeaseModal({ onClose, onSave }) {
       await api.post('/leases', {
         ...form,
         tenantId,
+        templateId: form.templateId || undefined,
         rentAmount: Number(form.rentAmount),
         depositAmount: Number(form.depositAmount || 0),
         rentDueDay: Number(form.rentDueDay),
@@ -435,6 +648,14 @@ function CreateLeaseModal({ onClose, onSave }) {
               <option value="">Select a vacant unit</option>
               {allUnits.map((u) => <option key={u.id} value={u.id}>{u.propertyName} — Unit {u.unitNumber} (${u.rentAmount}/mo)</option>)}
             </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Lease Template <span className="text-gray-400">(optional)</span></label>
+            <select className={inp} value={form.templateId} onChange={(e) => setForm({ ...form, templateId: e.target.value })}>
+              <option value="">No template — I'll upload my own lease</option>
+              {templates.filter((t) => t.category === 'lease').map((t) => <option key={t.id} value={t.id}>{t.name}{t.isSystem ? '' : ' (yours)'}</option>)}
+            </select>
+            <p className="text-xs text-gray-400 mt-1">Pick a template to send it for signature via DocuSign after creating the lease.</p>
           </div>
           {/* Tenant info — invited automatically with a welcome email */}
           <div className="p-4 bg-gray-50 rounded-xl space-y-3">
